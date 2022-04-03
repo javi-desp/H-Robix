@@ -1,0 +1,65 @@
+Hexapod:
+# Publish all joint states -----------------------------------
+    joint_state_controller:
+        type: joint_state_controller/JointStateController
+        publish_rate: 50
+
+# Position Controllers ---------------------------------------
+    joint_group_position_controller:
+        type: effort_controllers/JointGroupPositionController
+        joints:
+            - coxa_joint_LF
+            - femur_joint_LF
+            - tibia_joint_LF
+            - coxa_joint_LM
+            - femur_joint_LM
+            - tibia_joint_LM
+            - coxa_joint_LB
+            - femur_joint_LB
+            - tibia_joint_LB
+            - coxa_joint_RF
+            - femur_joint_RF
+            - tibia_joint_RF
+            - coxa_joint_RM
+            - femur_joint_RM
+            - tibia_joint_RM
+            - coxa_joint_RB
+            - femur_joint_RB
+            - tibia_joint_RB
+
+        coxa_joint_LF:
+            pid : {p: 180, d: 0.9, i: 20}
+        femur_joint_LF:
+            pid : {p: 180, d: 0.9, i: 20}
+        tibia_joint_LF:
+            pid : {p: 180, d: 0.9, i: 20}
+        coxa_joint_LM:
+            pid : {p: 180, d: 0.9, i: 20}
+        femur_joint_LM:
+            pid : {p: 180, d: 0.9, i: 20}
+        tibia_joint_LM:
+            pid : {p: 180, d: 0.9, i: 20}
+        coxa_joint_LB:
+            pid : {p: 180, d: 0.9, i: 20}
+        femur_joint_LB:
+            pid : {p: 180, d: 0.9, i: 20}
+        tibia_joint_LB:
+            pid : {p: 180, d: 0.9, i: 20}
+        coxa_joint_RF:
+            pid : {p: 180, d: 0.9, i: 20}
+        femur_joint_RF:
+            pid : {p: 180, d: 0.9, i: 20}
+        tibia_joint_RF:
+            pid : {p: 180, d: 0.9, i: 20}
+        coxa_joint_RM:
+            pid : {p: 180, d: 0.9, i: 20}
+        femur_joint_RM:
+            pid : {p: 180, d: 0.9, i: 20}
+        tibia_joint_RM:
+            pid : {p: 180, d: 0.9, i: 20}
+        coxa_joint_RB:
+            pid : {p: 180, d: 0.9, i: 20}
+        femur_joint_RB:
+            pid : {p: 180, d: 0.9, i: 20}
+        tibia_joint_RB:
+            pid : {p: 180, d: 0.9, i: 20}
