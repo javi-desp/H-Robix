@@ -15,8 +15,8 @@
 #include <ros/ros.h>
 
 #include "std_msgs/String.h"
-#include "dynamixel_sdk_examples/BulkGetItem.h"
-#include "dynamixel_sdk_examples/BulkSetItem.h"
+#include "javi_controllers/SetGroupMotorData.h"
+#include "javi_controllers/GetGroupMotorData.h"
 #include "dynamixel_sdk/dynamixel_sdk.h"
 
 using namespace dynamixel;
@@ -44,8 +44,8 @@ GroupBulkRead groupBulkRead(portHandler, packetHandler);
 GroupBulkWrite groupBulkWrite(portHandler, packetHandler);
 
 bool get_data_callback(
-  dynamixel_sdk_examples::BulkGetItem::Request & req,
-  dynamixel_sdk_examples::BulkGetItem::Response & res)
+  javi_controllers::GetGroupMotorData::Request & req,
+  javi_controllers::GetGroupMotorData::Response & res)
 {
   uint8_t dxl_error = 0;
   int dxl_comm_result = COMM_TX_FAIL;
@@ -95,7 +95,7 @@ bool get_data_callback(
   }
 }
 
-void set_data_callback(const dynamixel_sdk_examples::BulkSetItem::ConstPtr & msg)
+void set_data_callback(const javi_controllers::SetGroupMotorData::ConstPtr & msg)
 {
   uint8_t dxl_error = 0;
   int dxl_comm_result = COMM_TX_FAIL;
