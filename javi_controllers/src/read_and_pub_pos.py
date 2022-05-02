@@ -14,7 +14,7 @@ import math
 class service_to_joint_state: 
     def __init__(self, array_tibia_ids, array_femur_ids, array_coxa_ids):
         rospy.init_node('pub_motor_data')
-        self.pub_joint_state = rospy.Publisher('joint_states', JointState, queue_size=10)
+        self.pub_joint_state = rospy.Publisher('joint_states', JointState, queue_size=10, latch=True)
         self.rate = rospy.Rate(100) # 50hz
 
         self.message_joint_state = JointState()
@@ -38,38 +38,36 @@ class service_to_joint_state:
 
     def update_joint_state_message(self):
         self.message_joint_state.position = [
-                self.tibia_group_current_position.motor1_data*2*(math.pi/4095) - math.pi,
-                self.tibia_group_current_position.motor2_data*2*math.pi/4095 - math.pi,
-                self.tibia_group_current_position.motor3_data*2*math.pi/4095 - math.pi,
-                -self.tibia_group_current_position.motor4_data*2*math.pi/4095 + math.pi,
-                -self.tibia_group_current_position.motor5_data*2*math.pi/4095 + math.pi,
-                -self.tibia_group_current_position.motor6_data*2*math.pi/4095 + math.pi, 
+            #*0.001534355
+                self.tibia_group_current_position.motor1_data*0.001534355 - math.pi,
+                self.tibia_group_current_position.motor2_data*0.001534355 - math.pi,
+                self.tibia_group_current_position.motor3_data*0.001534355 - math.pi,
+                -self.tibia_group_current_position.motor4_data*0.001534355 + math.pi,
+                -self.tibia_group_current_position.motor5_data*0.001534355 + math.pi,
+                -self.tibia_group_current_position.motor6_data*0.001534355 + math.pi, 
 
-                -self.femur_group_current_position.motor1_data*2*math.pi/4095 + math.pi,
-                -self.femur_group_current_position.motor2_data*2*math.pi/4095 + math.pi,
-                -self.femur_group_current_position.motor3_data*2*math.pi/4095 + math.pi,
-                self.femur_group_current_position.motor4_data*2*math.pi/4095 - math.pi,
-                self.femur_group_current_position.motor5_data*2*math.pi/4095 - math.pi,
-                self.femur_group_current_position.motor6_data*2*math.pi/4095 - math.pi,  
+                -self.femur_group_current_position.motor1_data*0.001534355 + math.pi,
+                -self.femur_group_current_position.motor2_data*0.001534355 + math.pi,
+                -self.femur_group_current_position.motor3_data*0.001534355 + math.pi,
+                self.femur_group_current_position.motor4_data*0.001534355 - math.pi,
+                self.femur_group_current_position.motor5_data*0.001534355 - math.pi,
+                self.femur_group_current_position.motor6_data*0.001534355 - math.pi,  
 
-                -self.coxa_group_current_position.motor1_data*2*math.pi/4095 + math.pi,
-                -self.coxa_group_current_position.motor2_data*2*math.pi/4095 + math.pi,
-                -self.coxa_group_current_position.motor3_data*2*math.pi/4095 + math.pi,
-                -self.coxa_group_current_position.motor4_data*2*math.pi/4095 + math.pi,
-                -self.coxa_group_current_position.motor5_data*2*math.pi/4095 + math.pi,
-                -self.coxa_group_current_position.motor6_data*2*math.pi/4095 + math.pi
+                -self.coxa_group_current_position.motor1_data*0.001534355 + math.pi,
+                -self.coxa_group_current_position.motor2_data*0.001534355 + math.pi,
+                -self.coxa_group_current_position.motor3_data*0.001534355 + math.pi,
+                -self.coxa_group_current_position.motor4_data*0.001534355 + math.pi,
+                -self.coxa_group_current_position.motor5_data*0.001534355 + math.pi,
+                -self.coxa_group_current_position.motor6_data*0.001534355 + math.pi
         ]
 
     def run(self):
         while not rospy.is_shutdown():
             start = time.time()        
-            
             self.tibia_group_current_position = self.motor_group_service(self.array_tibia_ids[0],self.array_tibia_ids[1],self.array_tibia_ids[2],
                                                     self.array_tibia_ids[3],self.array_tibia_ids[4],self.array_tibia_ids[5],"position")
-
             self.femur_group_current_position = self.motor_group_service(self.array_femur_ids[0],self.array_femur_ids[1],self.array_femur_ids[2],
                                                     self.array_femur_ids[3],self.array_femur_ids[4],self.array_femur_ids[5],"position")
-
             self.coxa_group_current_position = self.motor_group_service(self.array_coxa_ids[0],self.array_coxa_ids[1],self.array_coxa_ids[2],
                                                     self.array_coxa_ids[3],self.array_coxa_ids[4],self.array_coxa_ids[5],"position")
 
@@ -80,14 +78,14 @@ class service_to_joint_state:
             self.pub_joint_state.publish(self.message_joint_state)
             self.rate.sleep()
 
-            print("tibia 1: ", self.message_joint_state.position[0])
-            print("tibia 2: ", self.message_joint_state.position[3])
-            print("femur 1: ", self.message_joint_state.position[6])
-            print("femur 2: ", self.message_joint_state.position[9])
-            print("coxa 1: ", self.message_joint_state.position[12])
-            print("coxa 2: ", self.message_joint_state.position[15])
+            #print("tibia 1: ", self.message_joint_state.position[0])
+            #print("tibia 2: ", self.message_joint_state.position[3])
+            #print("femur 1: ", self.message_joint_state.position[6])
+            #print("femur 2: ", self.message_joint_state.position[9])
+            #print("coxa 1: ", self.message_joint_state.position[12])
+            #print("coxa 2: ", self.message_joint_state.position[15])
 
-            print("--------------")
+            #print("--------------")
             end = time.time()
             print("RESPONSE IN ", end-start)
 
