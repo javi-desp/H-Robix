@@ -1,0 +1,6 @@
+bool right_front_leg
+bool right_middle_leg
+bool right_back_leg
+bool left_front_leg
+bool left_middle_leg
+bool left_back_leg
