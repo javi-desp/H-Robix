@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rospy
 from javi_controllers.msg import *
 
@@ -30,7 +32,6 @@ state_buttons = ButtonData()
 
 while True:            # this will carry on until you hit CTRL+C  
     if not GPIO.read(26):   
-        print ("right-front leg")
         state_buttons.left_front_leg = True
     else:
         state_buttons.left_front_leg = False

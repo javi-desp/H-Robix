@@ -1,5 +1,5 @@
 <launch>
   <node pkg="javi_controllers" name="dinamixel_motor_controllers"  type="dinamixel_motor_controllers" output="screen"/>
   <node pkg="javi_controllers" name="read_and_pub_pos" type="read_and_pub_pos.py" output="screen"/>
-  <node pkg="javi_controllers" name="buttons_handler" type="buttons_handler.py" output="screen" launch-prefix="sudo"/>
+  <node pkg="javi_controllers" name="buttons_handler" type="buttons_handler.py" output="screen"/>
 </launch>
