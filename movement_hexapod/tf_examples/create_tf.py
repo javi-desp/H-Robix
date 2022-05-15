@@ -22,14 +22,14 @@ class FixedTFBroadcaster:
             t.child_frame_id = "base_link"
 
 
-            t.transform.translation.x = 0.0
-            t.transform.translation.y = 0.01088
-            t.transform.translation.z = 0.014142
+            t.transform.translation.x = 0.3
+            t.transform.translation.y = 0.3
+            t.transform.translation.z = 0
 
-            t.transform.rotation.x = 0.6532814824381883
-            t.transform.rotation.y = -0.27059805007309845
-            t.transform.rotation.z = -0.6532814824381883
-            t.transform.rotation.w = 0.2705980500730986
+            t.transform.rotation.x = 1
+            t.transform.rotation.y = 0
+            t.transform.rotation.z = 0
+            t.transform.rotation.w = 0
 
             tfm = tf2_msgs.msg.TFMessage([t])
             self.pub_tf.publish(tfm)

@@ -5,7 +5,7 @@
     <!-- send joint values 
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="false"/>
     -->
-    <!-- send joint values gui
+    <!-- send joint values gui    
     <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui">
         <param name="use_gui" value="true"/>
     </node>
