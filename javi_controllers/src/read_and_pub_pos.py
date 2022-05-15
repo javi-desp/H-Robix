@@ -60,6 +60,26 @@ class service_to_joint_state:
                 -self.coxa_group_current_position.motor6_data*2*math.pi/4095 + math.pi
         ]
 
+    def forward_kinematics(self, q_coxa, q_femur, q_tibia):
+        x = math.cos(q_coxa) * (self.leg_lenghts["femur"] * math.cos(q_femur) + self.leg_lenghts["tibia"] * math.cos(q_femur + q_tibia))
+        y = math.sin(q_coxa) *(self.leg_lenghts["femur"] * math.cos(q_femur) + self.leg_lenghts["tibia"] * math.cos(q_femur + q_tibia))
+        z = self.leg_lenghts["coxa"] + self.leg_lenghts["femur"] * math.sin(q_femur) + self.leg_lenghts["tibia"] * math.sin(q_femur + q_tibia)
+
+        return ([x, y, z])
+
+    def inverse_kinematics(self, x, y, z):
+        try:
+            theta_1 = math.atan2(y, x)
+            cos_theta3 = ((x**2 + y+ (z- self.leg_lenghts["coxa"])**2 - self.leg_lenghts["femur"]**2 - self.leg_lenghts["tibia"]**2) / (2 * self.leg_lenghts["femur"] * self.leg_lenghts["tibia"]))
+            theta_3 = math.atan2( math.sqrt(1 -cos_theta3**2), cos_theta3)
+            theta_2 = (math.atan2(z - self.leg_lenghts["coxa"], math.sqrt(x**2 + y**2)) - math.atan2((self.leg_lenghts["tibia"] * math.sin(theta_3)) , (self.leg_lenghts["femur"] + self.leg_lenghts["tibia"] * math.cos(theta_3))))
+
+            return ([theta_1 , theta_2, theta_3])
+
+        except Exception as e:
+            print(e)
+            return ([0 , 0, 0])
+
     def run(self):
         while not rospy.is_shutdown():
             start = time.time()        
@@ -80,6 +100,9 @@ class service_to_joint_state:
             self.pub_joint_state.publish(self.message_joint_state)
             self.rate.sleep()
 
+            print("F_KIN = ", self.forward_kinematics(self.message_joint_state.position[12], self.message_joint_state.position[6], self.message_joint_state.position[0]))
+            
+            """
             print("tibia 1: ", self.message_joint_state.position[0])
             print("tibia 2: ", self.message_joint_state.position[3])
             print("femur 1: ", self.message_joint_state.position[6])
@@ -90,6 +113,7 @@ class service_to_joint_state:
             print("--------------")
             end = time.time()
             print("RESPONSE IN ", end-start)
+            """
 
 def main():
     ID_tibia = [1,2,3,4,5,6]
