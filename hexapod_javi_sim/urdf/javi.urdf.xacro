@@ -79,7 +79,7 @@
     <!-- Leg macro -->
     <xacro:macro name="leg" params="side position x y angle axis">
 
-        <!-- leg position -->
+        <!-- leg position 
         <joint name="leg_center_joint_${side}${position}" type="fixed">
             <origin xyz="${x} ${y} 0.0" rpy="0.0 0.0 0.0"/>
             <parent link="body_link"/>
@@ -95,10 +95,11 @@
                     izz="1.0" />
             </inertial>
         </link>
+        -->
         <!-- coxa -->
         <joint name="coxa_joint_${side}${position}" type="revolute">
-            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 ${angle}"/>
-            <parent link="leg_center_${side}${position}"/>
+            <origin xyz="${x} ${y} 0.0" rpy="0.0 0.0 ${angle}"/>
+            <parent link="body_link"/>
             <child link="coxa_${side}${position}"/>
             <axis xyz="0.0 0.0 1.0"/>
             <limit lower="${joint_lower_limit}" upper="${joint_upper_limit}" effort="${joint_effort}" velocity="${joint_velocity}"/>
