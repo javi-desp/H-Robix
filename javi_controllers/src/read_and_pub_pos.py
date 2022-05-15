@@ -14,6 +14,7 @@ import math
 class service_to_joint_state: 
     def __init__(self, array_tibia_ids, array_femur_ids, array_coxa_ids):
         rospy.init_node('pub_motor_data')
+        self.leg_lenghts = {'coxa': 0.0, 'femur': 0.1, 'tibia': 0.15049059936089032}
         self.pub_joint_state = rospy.Publisher('joint_states', JointState, queue_size=10)
         self.rate = rospy.Rate(100) # 50hz
 
