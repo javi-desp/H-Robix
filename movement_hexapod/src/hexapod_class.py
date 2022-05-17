@@ -24,7 +24,7 @@ class hexapod_class:
         self.leg_positions = {"coxa":0, "femur": 0, "tibia": 0}
         self.leg_lenghts = {"coxa":0, "femur": 0, "tibia": 0}
         self.offset_angle_kinematics = {"coxa":0, "femur": 0, "tibia": 0}
-        self.create_msg_motor_control()
+        self.create_msg_motor_control_test()
         self.get_params()
         
 
@@ -55,7 +55,7 @@ class hexapod_class:
 
         for joint in self.robot_description.joints:
             if "femur" in joint.name:
-                self.leg_positions["coxa"] = [0, 0, 0]
+                self.leg_positions["coxa"] = [abs(ele) for ele in joint.origin.xyz]
                 break
 
         for joint in self.robot_description.joints:
@@ -79,7 +79,7 @@ class hexapod_class:
         for joint in self.leg_positions:
             self.leg_lenghts[joint] = math.sqrt(self.leg_positions[joint][0]**2 + self.leg_positions[joint][1]**2 + self.leg_positions[joint][2]**2)
 
-    def create_msg_motor_control(self):
+    def create_msg_motor_control_test(self):
         self.pub_joint_state = rospy.Publisher('joint_states', JointState, queue_size=10)
         self.rate = rospy.Rate(100) # 50hz
 
@@ -97,34 +97,44 @@ class hexapod_class:
 
     def inverse_kinematics(self, x, y, z):
         try:
-            theta_1 = math.atan2(y, x)
-            cos_theta3 = ((x**2 + y+ (z- self.leg_lenghts["coxa"])**2 - self.leg_lenghts["femur"]**2 - self.leg_lenghts["tibia"]**2) / (2 * self.leg_lenghts["femur"] * self.leg_lenghts["tibia"]))
-            theta_3 = math.atan2( math.sqrt(1 -cos_theta3**2), cos_theta3)
-            theta_2 = (math.atan2(z - self.leg_lenghts["coxa"], math.sqrt(x**2 + y**2)) - math.atan2((self.leg_lenghts["tibia"] * math.sin(theta_3)) , (self.leg_lenghts["femur"] + self.leg_lenghts["tibia"] * math.cos(theta_3))))
+            theta_1 = math.atan2(y,x)
+            y = math.sqrt(x**2 + y**2) - self.leg_lenghts["coxa"]
+            cos_theta3 = (y**2+ z**2 - self.leg_lenghts["femur"]**2 - self.leg_lenghts["tibia"]**2) / (2 * self.leg_lenghts["femur"] * self.leg_lenghts["tibia"])
+
+
+            theta_3_1 = math.atan2( math.sqrt(1 -cos_theta3**2), cos_theta3)
+            theta_2_1 = (math.atan2(z, y) - math.atan2((self.leg_lenghts["tibia"] * math.sin(theta_3_1)) , (self.leg_lenghts["femur"] + self.leg_lenghts["tibia"] * math.cos(theta_3_1))))
+            theta_3_2 = math.atan2( -math.sqrt(1 -cos_theta3**2), cos_theta3)
+            theta_2_2 = (math.atan2(z, y) - math.atan2((self.leg_lenghts["tibia"] * math.sin(theta_3_2)) , (self.leg_lenghts["femur"] + self.leg_lenghts["tibia"] * math.cos(theta_3_2))))
+            
+            #DOS RESULTADOS !!!!!!!!
+            if theta_2_1 < theta_2_2:
+                theta_2 = theta_2_1
+                theta_3 = theta_3_1
+            else:
+                theta_2 = theta_2_2
+                theta_3 = theta_3_2              
 
             return ([theta_1 , theta_2, theta_3])
 
         except Exception as e:
             print(e)
-            return ([0 , 0, 0])
+            return None
 
     def forward_kinematics(self, q_coxa, q_femur, q_tibia):
-        x = math.cos(q_coxa) * (self.leg_lenghts["femur"] * math.cos(q_femur) + self.leg_lenghts["tibia"] * math.cos(q_femur + q_tibia))
-        y = math.sin(q_coxa) *(self.leg_lenghts["femur"] * math.cos(q_femur) + self.leg_lenghts["tibia"] * math.cos(q_femur + q_tibia))
-        z = self.leg_lenghts["coxa"] + self.leg_lenghts["femur"] * math.sin(q_femur) + self.leg_lenghts["tibia"] * math.sin(q_femur + q_tibia)
+        x = math.cos(q_coxa)*self.leg_lenghts["coxa"] + math.cos(q_coxa)*(self.leg_lenghts["femur"] * math.cos(q_femur) + self.leg_lenghts["tibia"] * math.cos(q_femur + q_tibia))
+        y = math.sin(q_coxa)*self.leg_lenghts["coxa"] + math.sin(q_coxa)*(self.leg_lenghts["femur"] * math.cos(q_femur) + self.leg_lenghts["tibia"] * math.cos(q_femur + q_tibia))
+        z = -self.leg_lenghts["femur"] * math.sin(q_femur) - self.leg_lenghts["tibia"] * math.sin(q_femur + q_tibia)
 
         return ([x, y, z])
 
-    def run(self):
-        while not rospy.is_shutdown():
-            self.message_joint_state.position[2] = -math.pi/2
-            self.message_joint_state.position[8] = - (math.pi/2)
-            self.message_joint_state.position[14] = math.pi/3
-            self.message_joint_state.header.stamp = rospy.Time.now()
-            self.pub_joint_state.publish(self.message_joint_state)
-            self.rate.sleep()
-            print("F_K = ", hexapod.forward_kinematics(self.message_joint_state.position[14], -self.message_joint_state.position[8], self.message_joint_state.position[2]))
-            exit()
+    def run(self, ang):
+        self.message_joint_state.position[2] = ang[2]
+        self.message_joint_state.position[8] = -ang[1]
+        self.message_joint_state.position[14] = ang[0]
+        self.message_joint_state.header.stamp = rospy.Time.now()
+        self.pub_joint_state.publish(self.message_joint_state)
+        self.rate.sleep()
 
 hexapod = hexapod_class()
 print()
@@ -132,28 +142,29 @@ print()
 print()
 print(hexapod.leg_lenghts)
 
-ang = hexapod.inverse_kinematics(0.07524529968044517, 0.1303286820772772, 0.1)
-
-print("I_K = ", ang)
-point = hexapod.forward_kinematics(ang[0], ang[1], ang[2])
-print("F_K = ",point)
 
 #point2 = np.dot(hexapod.T_base2coxa_list["coxa_LF"], point.append(1))
 #print(point2)
-hexapod.run()
 
-print(hexapod.leg_lenghts)
-"""
-i = 0.001
+#hexapod.run()
+pos1 = [0.1, 0.1, 0.05]
+pos2 = [0.15, 0.1, 0.05]
+pos3 = [-0.2, 0.1, -0.01]
 while True:
-    i += 0.00001
-    point = [0.125 , i, 0.1, 1]
-    #point2 = np.dot(hexapod.T_base2coxa_list["coxa_LF"], point)
-    #print(point2)
-    ang = hexapod.inverse_kinematics(point)
-    print(ang)
-    hexapod.run(ang)
-    print(ang)
-    #hexapod.run()
+    #pos[0] += 0.0001
 
-"""
+    ang = hexapod.inverse_kinematics(pos1[0], pos1[1], pos1[2])
+    time.sleep(1)
+    hexapod.run(ang)
+    print("ture")
+    ang = hexapod.inverse_kinematics(pos2[0], pos2[1], pos2[2])
+    time.sleep(1)
+    print("ture")
+    hexapod.run(ang)
+    ang = hexapod.inverse_kinematics(pos3[0], pos3[1], pos3[2])
+    print("ture")
+    time.sleep(1)
+    hexapod.run(ang)
+#pos =hexapod.forward_kinematics(ang[0], ang[1], ang[2])
+#print("FINAL POS= ", pos)
+

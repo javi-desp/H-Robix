@@ -20,9 +20,9 @@ if __name__ == '__main__':
         else:
             i += 1
         try:
-            trans = tfBuffer.lookup_transform('coxa_LB', 'base_link', rospy.Time())
+            trans = tfBuffer.lookup_transform('coxa_LB', 'femur_LB', rospy.Time())
             print(trans)
-
+            exit()
 
             trans = tfBuffer.lookup_transform('body_link', 'coxa_'+ legs[i], rospy.Time())
             #print(trans)
