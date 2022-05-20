@@ -15,7 +15,7 @@ import math
 class set_motor_settings:
     def __init__(self, array_tibia_ids, array_femur_ids, array_coxa_ids):
         self.BAUDRATE                    = 57600             #default baudrate
-        self.DEVICENAME                  = '/dev/ttyUSB0'
+        self.DEVICENAME                  = '/dev/ttyUSB1'
         self.PROTOCOL_VERSION            = 2.0               # See which protocol version is used in the Dynamixel
 
         # Control table address
@@ -26,6 +26,7 @@ class set_motor_settings:
         self.VEL_LIMIT = 155
         self.GOAL_VELOCITY = 112
         self.GOAL_ACCELERATION = 108
+        self.ADDR_PWM_LIMIT = 36
 
         self.TORQUE_ENABLE               = 1                 # Value for enabling the torque
         self.TORQUE_DISABLE              = 0                 # Value for disabling the torque
@@ -42,6 +43,10 @@ class set_motor_settings:
         self.array_coxa_ids = array_coxa_ids
         
         self.open_port()
+        self.reboot_motor_group(self.array_tibia_ids)
+        self.reboot_motor_group(self.array_femur_ids)
+        self.reboot_motor_group(self.array_coxa_ids)
+
         self.torque_motor_group(self.array_tibia_ids,1)
         self.torque_motor_group(self.array_femur_ids,1)
         self.torque_motor_group(self.array_coxa_ids,1)
@@ -53,6 +58,10 @@ class set_motor_settings:
         self.establish_motor_acceleration_profile(self.array_tibia_ids,20)
         self.establish_motor_acceleration_profile(self.array_femur_ids,20)
         self.establish_motor_acceleration_profile(self.array_coxa_ids,20)
+
+        self.establish_pwm_limit_value(self.array_coxa_ids,400)
+        self.establish_pwm_limit_value(self.array_coxa_ids,400)
+        self.establish_pwm_limit_value(self.array_coxa_ids,400)
 
 
     def open_port(self):
@@ -71,7 +80,20 @@ class set_motor_settings:
         except:
             print("Failed to change the baudrate")
             quit()
-        
+
+    def reboot_motor_group(self, array_ids):
+        for id in range (6):
+            print("See the Dynamixel LED flickering")
+
+            dxl_comm_result, dxl_error = self.packetHandler.reboot(self.portHandler, array_ids[id])
+            if dxl_comm_result != COMM_SUCCESS:
+                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
+            elif dxl_error != 0:
+                print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+
+            print("[ID:%03d] reboot Succeeded\n" % array_ids[id])
+
+
     def torque_motor_group(self, array_ids, state):
         for id in range (6):
             # Enable Dynamixel Torque
@@ -113,7 +135,21 @@ class set_motor_settings:
                 quit()
             
         print( "Acceleration changed - DYNAMIXEL motor group with ids =  ",array_ids,)
-        
+
+    def establish_pwm_limit_value(self, array_ids, pwm_limit):
+        for id in range (6):
+            # Enable Dynamixel Torque
+            dxl_comm_result1, dxl_error1 = self.packetHandler.write2ByteTxRx(self.portHandler, array_ids[id], self.ADDR_PWM_LIMIT, pwm_limit)
+
+            if dxl_comm_result1 != self.COMM_SUCCESS :
+                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result1))
+                quit()
+            elif dxl_error1 != 0 :
+                print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
+                quit()
+            
+        print( "Acceleration changed - DYNAMIXEL motor group with ids =  ",array_ids,)
+
     def set_msg_motor(array_ids,tibia_group_current_position, mode, init_data):
 
         set_position_tibia_group = SetGroupMotorData()
@@ -190,22 +226,25 @@ class service_to_joint_state:
     def run(self):
         while not rospy.is_shutdown():
             start = time.time()        
-            
-            self.tibia_group_current_position = self.motor_group_service(self.array_tibia_ids[0],self.array_tibia_ids[1],self.array_tibia_ids[2],
-                                                    self.array_tibia_ids[3],self.array_tibia_ids[4],self.array_tibia_ids[5],"position")
+            try:
+                self.tibia_group_current_position = self.motor_group_service(self.array_tibia_ids[0],self.array_tibia_ids[1],self.array_tibia_ids[2],
+                                                        self.array_tibia_ids[3],self.array_tibia_ids[4],self.array_tibia_ids[5],"position")
 
-            self.femur_group_current_position = self.motor_group_service(self.array_femur_ids[0],self.array_femur_ids[1],self.array_femur_ids[2],
-                                                    self.array_femur_ids[3],self.array_femur_ids[4],self.array_femur_ids[5],"position")
+                self.femur_group_current_position = self.motor_group_service(self.array_femur_ids[0],self.array_femur_ids[1],self.array_femur_ids[2],
+                                                        self.array_femur_ids[3],self.array_femur_ids[4],self.array_femur_ids[5],"position")
 
-            self.coxa_group_current_position = self.motor_group_service(self.array_coxa_ids[0],self.array_coxa_ids[1],self.array_coxa_ids[2],
-                                                    self.array_coxa_ids[3],self.array_coxa_ids[4],self.array_coxa_ids[5],"position")
+                self.coxa_group_current_position = self.motor_group_service(self.array_coxa_ids[0],self.array_coxa_ids[1],self.array_coxa_ids[2],
+                                                        self.array_coxa_ids[3],self.array_coxa_ids[4],self.array_coxa_ids[5],"position")
+            except: 
+                pass
+            if (self.tibia_group_current_position == False or self.femur_group_current_position == False or self.coxa_group_current_position == False):
+                print("couldnt update position!!")
+            else:
+                self.update_joint_state_message()
 
-
-            self.update_joint_state_message()
-
-            self.message_joint_state.header.stamp = rospy.Time.now()
-            self.pub_joint_state.publish(self.message_joint_state)
-            self.rate.sleep()
+                self.message_joint_state.header.stamp = rospy.Time.now()
+                self.pub_joint_state.publish(self.message_joint_state)
+                self.rate.sleep()
 
 
 def main():
@@ -213,7 +252,7 @@ def main():
     ID_femur = [11,21,31,41,51,61]
     ID_coxa = [10,20,30,40,50,60]
 
-    motors = set_motor_settings()
+    motors = set_motor_settings(ID_tibia, ID_femur, ID_coxa)
 
     hexapod = service_to_joint_state(ID_tibia, ID_femur, ID_coxa)
 
