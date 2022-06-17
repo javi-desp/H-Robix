@@ -1,5 +1,6 @@
 <launch>
   <node pkg="javi_controllers" name="dinamixel_motor_controllers"  type="dinamixel_motor_controllers" output="screen"/>
-  <node pkg="javi_controllers" name="read_and_pub_pos" type="read_and_pub_pos.py" output="screen"/>
+  <node pkg="javi_controllers" name="pub_crr_motors_data" type="pub_crr_motors_data.py" output="screen"/>
+  <node pkg="javi_controllers" name="conf_motors" type="conf_motors.py" output="screen"/>
   <node pkg="javi_controllers" name="buttons_handler" type="buttons_handler.py" output="screen"/>
 </launch>
