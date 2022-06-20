@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from pickle import FALSE
 import rospy
 import time
 import signal
@@ -10,7 +11,6 @@ from javi_controllers.msg import *
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
-#TODO check if this works
 class GracefulKiller:
   kill_now = False
   def __init__(self):
@@ -25,24 +25,22 @@ class GracefulKiller:
 class set_motor_settings:
     def __init__(self, array_tibia_ids, array_femur_ids, array_coxa_ids):
         self.BAUDRATE                    = 57600             #default baudrate
-        self.DEVICENAME                  = '/dev/ttyUSB1'
-        self.PROTOCOL_VERSION            = 2.0               # See which protocol version is used in the Dynamixel
+        self.DEVICENAME                  = '/dev/ttyUSB0'
+        self.PROTOCOL_VERSION            = 2.0               
 
         # Control table address
-        self.ADDR_TORQUE_ENABLE      = 64               # Control table address is different in Dynamixel model
-        #self.ADDR_GOAL_POSITION      = 116
-        #self.ADDR_PRESENT_POSITION   = 132
-        #self.ADDR_LIMIT_VEL = 44
-        #self.VEL_LIMIT = 155
-        self.GOAL_VELOCITY = 112
-        self.GOAL_ACCELERATION = 108
-        self.ADDR_PWM_LIMIT = 36
+        self.ADDR_OPERATION_MODE        = 11           
+        self.VELOCITY_CONTROL_MODE      = 1
+        self.POSITION_CONTROL_MODE      = 3
+        self.PWM_CONTROL_MODE           = 16
 
-        self.TORQUE_ENABLE               = 1                 # Value for enabling the torque
-        self.TORQUE_DISABLE              = 0                 # Value for disabling the torque
-        #self.DXL_MINIMUM_POSITION_VALUE  = 0               # Dynamixel will rotate between this value
-        #self.DXL_MAXIMUM_POSITION_VALUE  = 1000            # and this value (note that the Dynamixel would not move when the position value is out of movable range. Check e-manual about the range of the Dynamixel you use.)
-        #self.DXL_MOVING_STATUS_THRESHOLD = 20                # Dynamixel moving status threshold
+        self.ADDR_TORQUE_ENABLE         = 64         
+        self.GOAL_VELOCITY              = 112
+        self.GOAL_ACCELERATION          = 108
+        self.ADDR_PWM_LIMIT             = 36
+
+        self.TORQUE_ENABLE               = 1          
+        self.TORQUE_DISABLE              = 0
         self.COMM_SUCCESS                = 0
 
         self.portHandler = PortHandler(self.DEVICENAME)
@@ -73,15 +71,15 @@ class set_motor_settings:
 
     def reboot_motor_group(self, array_ids):
         for id in range (6):
-            print("See the Dynamixel LED flickering")
-
             dxl_comm_result, dxl_error = self.packetHandler.reboot(self.portHandler, array_ids[id])
             if dxl_comm_result != COMM_SUCCESS:
                 print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
             elif dxl_error != 0:
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+            time.sleep(0.05)
 
-            print("[ID:%03d] reboot Succeeded\n" % array_ids[id])
+        print("[ID:", array_ids, "] reboot Succeeded")
+        print()
 
     def torque_motor_group(self, array_ids, state):
         for id in range (6):
@@ -94,9 +92,37 @@ class set_motor_settings:
             elif dxl_error1 != 0 :
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
-            
-        print("Torque enabled - DYNAMIXEL motor group with ids =  ",array_ids)
+            time.sleep(0.05)
+        if state:
+            print("Torque enabled - DYNAMIXEL motor group with ids =  ",array_ids)
+        else:
+            print("Torque disabled - DYNAMIXEL motor group with ids =  ",array_ids)
         
+    def establish_operation_mode(self, array_ids, mode):
+        if mode == "position":
+            addr_mode = self.POSITION_CONTROL_MODE
+        elif mode == "velocity":
+            addr_mode = self.VELOCITY_CONTROL_MODE
+        elif mode == "pwm":
+            addr_mode = self.PWM_CONTROL_MODE
+        else:
+            print("couldnt set OP MODE EXIT")
+            exit()
+
+        for id in range (6):
+            # Enable Dynamixel Torque
+            dxl_comm_result1, dxl_error1 = self.packetHandler.write1ByteTxRx(self.portHandler, array_ids[id], self.ADDR_OPERATION_MODE, addr_mode)
+
+            if dxl_comm_result1 != self.COMM_SUCCESS :
+                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result1))
+                quit()
+            elif dxl_error1 != 0 :
+                print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
+                quit()
+            time.sleep(0.05)
+
+        print("OP set to OP", mode, " - DYNAMIXEL motor group with ids =  ",array_ids)
+
     def establish_motor_speed_profile(self, array_ids, velocity):
         for id in range (6):
             # Enable Dynamixel Torque
@@ -108,6 +134,7 @@ class set_motor_settings:
             elif dxl_error1 != 0 :
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
+            time.sleep(0.05)
 
         print( "Velocity changed - DYNAMIXEL motor group with ids =  ",array_ids,)
 
@@ -122,6 +149,7 @@ class set_motor_settings:
             elif dxl_error1 != 0 :
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
+            time.sleep(0.05)
             
         print( "Acceleration changed - DYNAMIXEL motor group with ids =  ",array_ids,)
 
@@ -131,39 +159,55 @@ class set_motor_settings:
             dxl_comm_result1, dxl_error1 = self.packetHandler.write2ByteTxRx(self.portHandler, array_ids[id], self.ADDR_PWM_LIMIT, pwm_limit)
 
             if dxl_comm_result1 != self.COMM_SUCCESS :
+                print("exito-- ID ", array_ids[id])
                 print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result1))
                 quit()
             elif dxl_error1 != 0 :
+                print("fail-- ID ", array_ids[id])
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
+            time.sleep(0.05)
             
-        print( "Acceleration changed - DYNAMIXEL motor group with ids =  ",array_ids,)
+        print( "pwm changed - DYNAMIXEL motor group with ids =  ",array_ids,)
 
     def default_configuration(self):
         self.reboot_motor_group(self.array_tibia_ids)
         self.reboot_motor_group(self.array_femur_ids)
         self.reboot_motor_group(self.array_coxa_ids)
+        print()
+
+        self.torque_motor_group(self.array_tibia_ids,0)
+        self.torque_motor_group(self.array_femur_ids,0)
+        self.torque_motor_group(self.array_coxa_ids,0)
+        print()        
+
+        self.establish_operation_mode(self.array_tibia_ids, "velocity")
+        self.establish_operation_mode(self.array_femur_ids, "velocity")
+        self.establish_operation_mode(self.array_coxa_ids, "velocity")
+        print()
+        self.establish_motor_speed_profile(self.array_tibia_ids,20)
+        self.establish_motor_speed_profile(self.array_femur_ids,20)
+        self.establish_motor_speed_profile(self.array_coxa_ids,20)
+        print()
+
+        self.establish_motor_acceleration_profile(self.array_tibia_ids,10)
+        self.establish_motor_acceleration_profile(self.array_femur_ids,10)
+        self.establish_motor_acceleration_profile(self.array_coxa_ids,10)
+        print()
+
+        self.establish_pwm_limit_value(self.array_tibia_ids,375)
+        self.establish_pwm_limit_value(self.array_femur_ids,375)
+        self.establish_pwm_limit_value(self.array_coxa_ids,375)
+        print()
 
         self.torque_motor_group(self.array_tibia_ids,1)
         self.torque_motor_group(self.array_femur_ids,1)
         self.torque_motor_group(self.array_coxa_ids,1)
-
-        self.establish_motor_speed_profile(self.array_tibia_ids,10)
-        self.establish_motor_speed_profile(self.array_femur_ids,10)
-        self.establish_motor_speed_profile(self.array_coxa_ids,10)
-
-        self.establish_motor_acceleration_profile(self.array_tibia_ids,20)
-        self.establish_motor_acceleration_profile(self.array_femur_ids,20)
-        self.establish_motor_acceleration_profile(self.array_coxa_ids,20)
-
-        self.establish_pwm_limit_value(self.array_coxa_ids,400)
-        self.establish_pwm_limit_value(self.array_coxa_ids,400)
-        self.establish_pwm_limit_value(self.array_coxa_ids,400)
 
     def disable_motors(self):
-        self.torque_motor_group(self.array_tibia_ids,1)
-        self.torque_motor_group(self.array_femur_ids,1)
-        self.torque_motor_group(self.array_coxa_ids,1)
+        self.torque_motor_group(self.array_tibia_ids,0)
+        self.torque_motor_group(self.array_femur_ids,0)
+        self.torque_motor_group(self.array_coxa_ids,0)
 
 
 def main():
@@ -175,9 +219,10 @@ def main():
     motors = set_motor_settings(ID_tibia, ID_femur, ID_coxa)
     motors.default_configuration()
 
+    #wait for SIGTERM Or SIGINT and then disable the motors 
     killer = GracefulKiller()
     while not killer.kill_now:
-        time.sleep(0.5)
+        time.sleep(0.2)
     motors.disable_motors()
 
 if __name__ == '__main__':

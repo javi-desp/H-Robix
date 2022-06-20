@@ -40,33 +40,6 @@ class hexapod_class:
         self.pub_to_motor_group = rospy.Publisher('set_dinamixel_motor_group_data', SetGroupMotorData, queue_size=10)
         rospy.Subscriber("joint_states", JointState, self.get_current_motor_data)
 
-    def create_default_poses(self):
-        ##########################################################################################################################################
-        #### @brief generate home poses for each joint leg and list of goal poses
-        #### @use __init__
-        ##########################################################################################################################################
-
-        pos1 = [-0.19, 0.17, 0, 1]
-        pos1 = np.dot(self.T_base2coxa_list["coxa_LB"], pos1)
-        pos2 = [0.0, 0.24, 0, 1]
-        pos2 = np.dot(self.T_base2coxa_list["coxa_LM"], pos2)
-        pos3 = [0.19, 0.17, 0, 1]
-        pos3 = np.dot(self.T_base2coxa_list["coxa_LF"], pos3)
-        pos4 = [-0.19, -0.17, 0, 1]
-        pos4 = np.dot(self.T_base2coxa_list["coxa_RB"], pos4)
-        pos5 = [0.0, -0.24, 0, 1]
-        pos5 = np.dot(self.T_base2coxa_list["coxa_RM"], pos5)
-        pos6 = [0.19, -0.17, 0, 1]
-        pos6 = np.dot(self.T_base2coxa_list["coxa_RF"], pos6)
-
-        self.poses_zero = []
-        self.poses_home = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
-        self.poses_home_movement = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
-        self.poses_goal_movement_p1 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
-        self.poses_goal_movement_p2 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
-
-        self.poses_sleep = {}
-
     def get_params(self):
         ##########################################################################################################################################
         #### @brief get model data from its URDF, like leg lenths moreover the transformation matrix coxa->base_link using tf2 
@@ -116,6 +89,33 @@ class hexapod_class:
             
         for joint in self.leg_positions:
             self.leg_lenghts[joint] = math.sqrt(self.leg_positions[joint][0]**2 + self.leg_positions[joint][1]**2 + self.leg_positions[joint][2]**2)
+
+    def create_default_poses(self):
+        ##########################################################################################################################################
+        #### @brief generate home poses for each joint leg and list of goal poses
+        #### @use __init__
+        ##########################################################################################################################################
+
+        pos1 = [-0.19, 0.17, 0, 1]
+        pos1 = np.dot(self.T_base2coxa_list["coxa_LB"], pos1)
+        pos2 = [0.0, 0.24, 0, 1]
+        pos2 = np.dot(self.T_base2coxa_list["coxa_LM"], pos2)
+        pos3 = [0.19, 0.17, 0, 1]
+        pos3 = np.dot(self.T_base2coxa_list["coxa_LF"], pos3)
+        pos4 = [-0.19, -0.17, 0, 1]
+        pos4 = np.dot(self.T_base2coxa_list["coxa_RB"], pos4)
+        pos5 = [0.0, -0.24, 0, 1]
+        pos5 = np.dot(self.T_base2coxa_list["coxa_RM"], pos5)
+        pos6 = [0.19, -0.17, 0, 1]
+        pos6 = np.dot(self.T_base2coxa_list["coxa_RF"], pos6)
+
+        self.poses_zero = []
+        self.poses_home = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
+        self.poses_home_movement = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
+        self.poses_goal_movement_p1 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
+        self.poses_goal_movement_p2 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
+
+        self.poses_sleep = {}
 
     def get_current_motor_data(self, data):
         ##########################################################################################################################################
@@ -235,11 +235,12 @@ class hexapod_class:
         #### @param mode -> mode of running code (sending data to motors o simulation)
         #### @use in gait modes  
         ##########################################################################################################################################
+        print(mode)
         if mode == "debug":
             i = 0
             for key in poses_legs:
                 if i in group_ids: 
-                    ang = hexapod.inverse_kinematics(poses_legs[key][0], poses_legs[key][1], poses_legs[key][2],  key)
+                    ang = self.inverse_kinematics(poses_legs[key][0], poses_legs[key][1], poses_legs[key][2],  key)
                     self.message_joint_state.position[i] = ang[2]
                     self.message_joint_state.position[i+6] = -ang[1]
                     self.message_joint_state.position[i+12] = ang[0] + self.off_coxa[i]
@@ -253,7 +254,7 @@ class hexapod_class:
             ang_legs = {}
             for key in poses_legs:
                 if i in group_ids: 
-                    ang_legs[i] = hexapod.inverse_kinematics(poses_legs[key][0], poses_legs[key][1], poses_legs[key][2],  key)
+                    ang_legs[i] = self.inverse_kinematics(poses_legs[key][0], poses_legs[key][1], poses_legs[key][2],  key)
                 i +=1
 
             for i in range(0, len(ang_legs), 2):
@@ -325,7 +326,7 @@ class hexapod_class:
 
         return ([x, y, z])
 
-    def calculate_goal_points_movement(self, ang, h_leg, h_hop):
+    def calculate_goal_points_movement(self, ang, h_hop, h_leg):
         ##########################################################################################################################################
         #### @brief get two points of trayectory (p1 -> half goal distance elevated point, p2 goal distance and position)
         #### @param ang -> ang of goal movement circumference
@@ -358,31 +359,37 @@ class hexapod_class:
         #TODO self.base_height
 
         if type(dir) == list:
-            dir = math.atan2(dir[1], dir[0])
+            ang = math.atan2(dir[1], dir[0])
+            speed = math.sqrt(math.pow(dir[0],2) + math.pow(dir[1],2))
+        else:
+            return 
         
         id_group_1 = [0, 2, 4]
         id_group_2 = [1, 3, 5 ]
-        self.calculate_goal_points_movement(dir, h_hop, h_legs)
+        self.calculate_goal_points_movement(ang, h_hop, h_legs)
 
-        for i in range(2):
-            if i == 0:
-                #PHASE 1
-                self.command_position(self.poses_goal_movement_p1, id_group_1, mode)
-                self.command_position(self.poses_home_movement, id_group_2, mode)
-                time.sleep(0.2)
-                #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
-                self.command_position(self.poses_goal_movement_p2, id_group_1)
-                time.sleep(0.5)
-                print("phase 1")
-            else:
-                #PHASE 2
-                self.command_position(self.poses_goal_movement_p1, id_group_2, mode)
-                self.command_position(self.poses_home_movement, id_group_1, mode)
-                time.sleep(0.2)
-                #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
-                self.command_position(self.poses_goal_movement_p2, id_group_2, mode)
-                time.sleep(0.5)
-                print("phase 2")                       
+        try:
+            for phase in range(2):
+                    print("phase 1")
+                    #PHASE 1
+                    self.command_position(self.poses_goal_movement_p1, id_group_1, mode)
+                    self.command_position(self.poses_home_movement, id_group_2, mode)
+                    time.sleep(0.2)
+                    #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
+                    self.command_position(self.poses_goal_movement_p2, id_group_1, mode)
+                    time.sleep(1)
+                    
+                    print("phase 2")     
+                    #PHASE 2
+                    self.command_position(self.poses_goal_movement_p1, id_group_2, mode)
+                    self.command_position(self.poses_home_movement, id_group_1, mode)
+                    time.sleep(0.2)
+                    #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
+                    self.command_position(self.poses_goal_movement_p2, id_group_2, mode)
+                    time.sleep(1)
+        except:
+            exit()
+                                  
 
     def run_wave_mode(self, dir, h_legs = - 0.1, h_hop = 0.05, mode = "real"):
         ##########################################################################################################################################
@@ -397,32 +404,16 @@ class hexapod_class:
         #TODO self.base_height
 
         if type(dir) == list:
-            dir = math.atan2(dir[1], dir[0])
+            ang = math.atan2(dir[1], dir[0])
 
-        id_group_1 = [0, 1, 2]
-        id_group_2 = [3, 4, 5 ]
-        self.calculate_goal_points_movement(dir, h_hop, h_legs)
-        for phase in range(2):
-            if phase == 1:
-                print("phase 1")
-                #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
-                self.command_position(self.poses_home_movement, id_group_2, mode)
-                for i in range(3):
-                        #PHASE 1
-                        self.command_position(self.poses_goal_movement_p1, [i], mode)
-                        time.sleep(0.2)
-                        self.command_position(self.poses_goal_movement_p2, [i], mode)
-                        time.sleep(0.5)
-            else:
-                print("phase 2")   
-                #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
-                self.command_position(self.poses_goal_movement_p1, id_group_1, mode)
-                for i in range(3):
-                        #PHASE 2
-                        self.command_position(self.poses_goal_movement_p1, [i+3], mode)
-                        time.sleep(0.2)
-                        self.command_position(self.poses_goal_movement_p2, [i+3], mode)
-                        time.sleep(0.5)
+        self.calculate_goal_points_movement(ang, h_hop, h_legs)
+        for leg in range(6):
+            self.command_position(self.poses_goal_movement_p1, [leg], mode)
+            time.sleep(0.2)
+            self.command_position(self.poses_goal_movement_p2, [leg], mode)
+            time.sleep(0.5)
+            self.command_position(self.poses_home_movement, [leg], mode)
+            time.sleep(1)
                                         
     def run_ripple_mode(self, dir, h_legs = - 0.1, h_hop = 0.05, mode = "real"):
         ##########################################################################################################################################
@@ -437,11 +428,11 @@ class hexapod_class:
         #TODO self.base_height
 
         if type(dir) == list:
-            dir = math.atan2(dir[1], dir[0])
+            ang = math.atan2(dir[1], dir[0])
         
         id_group_1 = [0, 2, 4]
         id_group_2 = [1, 3, 5 ]
-        self.calculate_goal_points_movement(dir, h_hop, h_legs)
+        self.calculate_goal_points_movement(ang, h_hop, h_legs)
 
         for i in range(2):
             if i == 0:
@@ -472,21 +463,9 @@ def main():
     ID_coxa = [10,20,30,40,50,60]
 
     hexapod = hexapod_class(ID_tibia, ID_femur, ID_coxa)
-    """
-    goal_tibia = [1.7744820043353338, 1.614909044152995, 1.6164433995393637, -1.6179777549257324, -1.6103059779938889, -1.6103059779938889]
-    goal_femur = [0.5577381829450014, 0.5393259183085775, 0.5516007613995266, -0.5439289844676831, -0.5454633398540523, -0.5654099598768445]
-    goal_coxa = [-0.24933275028490431, -0.2155769317847942, -0.2155769317847942, -0.2155769317847942, -0.2155769317847942, -0.2155769317847942]
+    while True:
+        hexapod.run_wave_mode(dir= [1, 0], mode="debug")
 
-    goal_coxa, goal_femur, goal_tibia = hexapod.convert_radians2binary_data(goal_coxa, goal_femur, goal_tibia)
-
-    hexapod.command_position(goal_coxa, goal_femur, goal_tibia)
-
-    rospy.spin()
-    print("STOP")
-    exit()
-    rospy.spin()
-    exit()
-    """
     
 if __name__ == '__main__':
     main()
