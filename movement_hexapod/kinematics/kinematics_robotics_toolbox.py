@@ -42,4 +42,3 @@ if __name__ == "__main__":  # pragma nocover
     sol = hexapod_leg.ikine_LM(T)  
     print(sol[0])
     input()
-    # print(ur3.dyntable())

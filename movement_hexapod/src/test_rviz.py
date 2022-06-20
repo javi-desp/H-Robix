@@ -9,6 +9,7 @@ from std_msgs.msg import Header
 import math
 
 class service_to_joint_state: 
+    #CODE TO CREATE TOPIC JOINT STATES AND TEST RVIZ MODEL AND GAITS
     def __init__(self):
         rospy.init_node('pub_motor_data')
         self.pub_joint_state = rospy.Publisher('joint_states', JointState, queue_size=10)
