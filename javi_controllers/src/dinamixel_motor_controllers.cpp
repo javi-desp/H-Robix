@@ -15,10 +15,9 @@
 #include <ros/ros.h>
 
 #include "std_msgs/String.h"
-#include "dynamixel_sdk_examples/BulkGetItem.h"
-#include "dynamixel_sdk_examples/BulkSetItem.h"
 #include "dynamixel_sdk/dynamixel_sdk.h"
-
+#include "javi_controllers/SetGroupMotorData.h"
+#include "javi_controllers/GetGroupMotorData.h"
 using namespace dynamixel;
 
 // Control table address
@@ -43,8 +42,8 @@ GroupBulkRead groupBulkRead(portHandler, packetHandler);
 GroupBulkWrite groupBulkWrite(portHandler, packetHandler);
 
 bool get_data_callback(
-  dynamixel_sdk_examples::BulkGetItem::Request & req,
-  dynamixel_sdk_examples::BulkGetItem::Response & res)
+  javi_controllers::GetGroupMotorData::Request & req,
+  javi_controllers::GetGroupMotorData::Response & res)
 {
   int dxl_comm_result = COMM_TX_FAIL;
   int dxl_addparam_result = 0;
@@ -91,7 +90,7 @@ bool get_data_callback(
   }
 }
 
-void set_data_callback(const dynamixel_sdk_examples::BulkSetItem::ConstPtr & msg)
+void set_data_callback(const javi_controllers::SetGroupMotorData::ConstPtr & msg)
 {
   int dxl_comm_result = COMM_TX_FAIL;
   int dxl_addparam_result = 0;
