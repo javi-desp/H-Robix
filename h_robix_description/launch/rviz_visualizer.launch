@@ -1,6 +1,6 @@
 <launch>
 
-    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find h_robix_description)/urdf/javi.urdf.xacro'"/>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find h_robix_description)/urdf/h_robix.urdf.xacro'"/>
 
     <!-- send joint values 
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="false"/>

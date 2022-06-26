@@ -6,7 +6,7 @@
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
-    <arg name="model" default="$(find h_robix_description)/urdf/javi.urdf.xacro"/>
+    <arg name="model" default="$(find h_robix_description)/urdf/h_robix.urdf.xacro"/>
 
     <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -20,7 +20,7 @@
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model Hexapod -z 1"/>
 
-    <rosparam file="$(find h_robix_description)/config/hexapod_control.yaml" command="load" />
+    <rosparam file="$(find h_robix_gazebo)/config/hexapod_control.yaml" command="load" />
  
  
     <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher">
