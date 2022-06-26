@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from javi_controllers.msg import *
+from h_robix_control.msg import *
 import pigpio
 
 def main ():

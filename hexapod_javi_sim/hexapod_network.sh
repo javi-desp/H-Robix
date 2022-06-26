@@ -1,1 +1,0 @@
-create_ap wlp1s0 wlp1s0 HEXAPOD_NETWORK hexapodo_123456789

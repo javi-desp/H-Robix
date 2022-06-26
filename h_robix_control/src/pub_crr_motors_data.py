@@ -4,8 +4,8 @@ import rospy
 import time
 import math
 from dynamixel_sdk import *
-from javi_controllers.srv import *
-from javi_controllers.msg import *
+from h_robix_control.srv import *
+from h_robix_control.msg import *
 import numpy as np 
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header

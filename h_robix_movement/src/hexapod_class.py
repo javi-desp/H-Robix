@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from ntpath import join
 import rospy
 from urdf_parser_py.urdf import URDF

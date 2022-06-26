@@ -1,6 +1,6 @@
 <launch>
 
-    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find hexapod_javi_sim)/urdf/javi.urdf.xacro'"/>
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find h_robix_description)/urdf/javi.urdf.xacro'"/>
 
     <!-- send joint values 
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="false"/>
@@ -16,6 +16,6 @@
     </node>
 
     <!-- Show in Rviz   -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hexapod_javi_sim)/launch/config.rviz"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find h_robix_description)/launch/config.rviz"/>
 
 </launch>

@@ -16,8 +16,8 @@
 
 #include "std_msgs/String.h"
 #include "dynamixel_sdk/dynamixel_sdk.h"
-#include "javi_controllers/SetGroupMotorData.h"
-#include "javi_controllers/GetGroupMotorData.h"
+#include "h_robix_control/SetGroupMotorData.h"
+#include "h_robix_control/GetGroupMotorData.h"
 using namespace dynamixel;
 
 // Control table address
@@ -42,8 +42,8 @@ GroupBulkRead groupBulkRead(portHandler, packetHandler);
 GroupBulkWrite groupBulkWrite(portHandler, packetHandler);
 
 bool get_data_callback(
-  javi_controllers::GetGroupMotorData::Request & req,
-  javi_controllers::GetGroupMotorData::Response & res)
+  h_robix_control::GetGroupMotorData::Request & req,
+  h_robix_control::GetGroupMotorData::Response & res)
 {
   int dxl_comm_result = COMM_TX_FAIL;
   int dxl_addparam_result = 0;
@@ -90,7 +90,7 @@ bool get_data_callback(
   }
 }
 
-void set_data_callback(const javi_controllers::SetGroupMotorData::ConstPtr & msg)
+void set_data_callback(const h_robix_control::SetGroupMotorData::ConstPtr & msg)
 {
   int dxl_comm_result = COMM_TX_FAIL;
   int dxl_addparam_result = 0;

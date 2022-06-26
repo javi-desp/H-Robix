@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <!-- these are the arguments you can pass this launch file, for example paused:=true -->
-    <arg name="paused" default="false"/>
+    <arg name="paused" default="true"/>
     <arg name="use_sim_time" default="true"/>
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
-    <arg name="model" default="$(find ur10e_pkg)/urdf/robot_ur10e.urdf.xacro"/>
+    <arg name="model" default="$(find h_robix_description)/urdf/javi.urdf.xacro"/>
 
     <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -18,23 +18,21 @@
     </include>
 
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
-    <rosparam command="load" file="$(find ur10e_pkg)/config/joints_ur10e.yaml" />
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model Hexapod -z 1"/>
 
-    <!-- push robot_description to factory and spawn robot in gazebo -->
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
-            args="-unpause -urdf -model robot -param robot_description" respawn="false" output="screen" />
-
+    <rosparam file="$(find h_robix_description)/config/hexapod_control.yaml" command="load" />
+ 
+ 
     <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher">
         <param name="publish_frequency" type="double" value="30.0" />
     </node>
 
     <!-- ==== 09 ==== -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ur10e_pkg)/launch/config.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find h_robix_description)/launch/config.rviz" />
 
-    <node name="ur10e_controller_spawner" pkg="controller_manager" type="spawner"
-        args="ur10e_joint_state_controller
-              arm_controller
-              hand_controller
-              --timeout 60"/>
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/Hexapod"
+        args="hexapod_joint_state_controller hexapod_group_position_controller"/>
+
 
 </launch>

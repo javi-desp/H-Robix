@@ -39,7 +39,7 @@
         <visual>
             <origin xyz="-0.034138 0.204808 -0.031029" rpy="${pi/2} 0.0 0.0"/>
             <geometry>
-                <mesh filename="package://hexapod_javi_sim/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://h_robix_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="">
                 <color rgba="0.7 0.7 0.7 1"/>
@@ -48,7 +48,7 @@
         <collision>
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <mesh filename="package://hexapod_javi_sim/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://h_robix_description/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="">
                 <color rgba="0.7 0.7 0.7 1"/>
@@ -118,7 +118,7 @@
             <visual>
                 <origin xyz="0.012 0.0 0.0" rpy="0.0 0.0 ${pi/2}"/>
                 <geometry>
-                    <mesh filename="package://hexapod_javi_sim/meshes/coxa_link.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://h_robix_description/meshes/coxa_link.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="">
                     <color rgba="0.7 0.7 0.7 1"/>
@@ -127,7 +127,7 @@
             <collision>
                 <origin xyz="0.012 0.0 0.0" rpy="0.0 0.0 ${pi/2}" />
                 <geometry>
-                    <mesh filename="package://hexapod_javi_sim/meshes/coxa_link.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://h_robix_description/meshes/coxa_link.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="">
                     <color rgba="0.7 0.7 0.7 1" />
@@ -168,7 +168,7 @@
             <visual>
                 <origin xyz="0.066 -0.09827 -0.024054" rpy="0.0 0.0 ${-pi/2}"/>
                 <geometry>
-                    <mesh filename="package://hexapod_javi_sim/meshes/femur_link.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://h_robix_description/meshes/femur_link.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="">
                     <color rgba="0.7 0.7 0.7 1"/>
@@ -177,7 +177,7 @@
             <collision>
                 <origin xyz="0.066 -0.09827 -0.024054" rpy="0.0 0.0 ${-pi/2} " />
                 <geometry>
-                    <mesh filename="package://hexapod_javi_sim/meshes/femur_link.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://h_robix_description/meshes/femur_link.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="">
                     <color rgba="0.7 0.7 0.7 1" />
@@ -215,7 +215,7 @@
             <visual>
                 <origin xyz="0.0185 0.030551 -0.002466" rpy="${-pi*3/4} ${pi/2} 0.0"/>
                 <geometry>
-                    <mesh filename="package://hexapod_javi_sim/meshes/tibia_link.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://h_robix_description/meshes/tibia_link.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="">
                     <color rgba="0.7 0.7 0.7 1"/>
@@ -224,7 +224,7 @@
             <collision>
                 <origin xyz="0.0185 0.030551 -0.002466" rpy="${-pi*3/4} ${pi/2} 0.0" />
                 <geometry>
-                    <mesh filename="package://hexapod_javi_sim/meshes/tibia_link.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://h_robix_description/meshes/tibia_link.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="">
                     <color rgba="0.7 0.7 0.7 1" />
