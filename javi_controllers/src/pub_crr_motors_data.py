@@ -33,7 +33,7 @@ class service_to_joint_state:
         self.message_joint_state.velocity = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.message_joint_state.effort = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        self.feedback = {"position": True, "velocity": True, "pwm": False}
+        self.feedback = {"position": True, "velocity": True, "pwm": True}
     
         rospy.wait_for_service('get_dinamixel_motor_group_data')
         self.motor_group_service = rospy.ServiceProxy('get_dinamixel_motor_group_data', GetGroupMotorData)
@@ -154,7 +154,7 @@ class service_to_joint_state:
                 self.pub_joint_state.publish(self.message_joint_state)
                 self.rate.sleep()
 
-                print("elapsed time = ", time.time() - start)
+                #print("elapsed time = ", time.time() - start)
 
 #TODO it can be done in server side
 #TODO run after conf_motors in a proper way... 

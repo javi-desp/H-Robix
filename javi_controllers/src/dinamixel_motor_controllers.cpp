@@ -33,7 +33,7 @@ using namespace dynamixel;
 // Protocol version
 #define PROTOCOL_VERSION      2.0             // Default Protocol version of DYNAMIXEL X series.
 
-#define BAUDRATE              57600           // Default Baudrate of DYNAMIXEL X series
+#define BAUDRATE              3000000           // Default Baudrate of DYNAMIXEL X series
 #define DEVICE_NAME           "/dev/ttyUSB0"  // [Linux] To find assigned port, use "$ ls /dev/ttyUSB*" command
 
 PortHandler * portHandler = PortHandler::getPortHandler(DEVICE_NAME);
@@ -150,7 +150,7 @@ void set_data_callback(const dynamixel_sdk_examples::BulkSetItem::ConstPtr & msg
     addr_goal_item[4] = addr_goal;
     len_goal_item[4] = 4;
   
-    position = (unsigned int)msg->motor5_data; // Convert int32 -> uint32
+    position = (unsigned int)msg->motor6_data; // Convert int32 -> uint32
     param_goal_position[5][0] = DXL_LOBYTE(DXL_LOWORD(position));
     param_goal_position[5][1] = DXL_HIBYTE(DXL_LOWORD(position));
     param_goal_position[5][2] = DXL_LOBYTE(DXL_HIWORD(position));
@@ -161,12 +161,22 @@ void set_data_callback(const dynamixel_sdk_examples::BulkSetItem::ConstPtr & msg
   dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor1_id, addr_goal_item[0], len_goal_item[0], param_goal_position[0]);
   dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor2_id, addr_goal_item[1], len_goal_item[1], param_goal_position[1]);
   dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor3_id, addr_goal_item[2], len_goal_item[2], param_goal_position[2]);
-  dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor4_id, addr_goal_item[3], len_goal_item[3], param_goal_position[3]);
-  dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor5_id, addr_goal_item[4], len_goal_item[4], param_goal_position[4]);
-  dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor6_id, addr_goal_item[5], len_goal_item[5], param_goal_position[5]);
+  if (msg->motor4_id == 255)
+    dxl_addparam_result += 1;
+  else
+    dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor4_id, addr_goal_item[3], len_goal_item[3], param_goal_position[3]);
+
+  if (msg->motor5_id == 255)
+    dxl_addparam_result += 1;
+  else  
+    dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor5_id, addr_goal_item[4], len_goal_item[4], param_goal_position[4]);
+
+  if (msg->motor6_id == 255)
+    dxl_addparam_result += 1;
+  else
+    dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor6_id, addr_goal_item[5], len_goal_item[5], param_goal_position[5]);
 
   }
-  
   else if (msg->data_required == "PWM") {
     pwm_goal = (unsigned int)msg->motor1_data; // Convert int32 -> uint32
     param_goal_pwm[0][0] = DXL_LOBYTE(DXL_LOWORD(pwm_goal));
