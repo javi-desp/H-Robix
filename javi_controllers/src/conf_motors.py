@@ -24,7 +24,7 @@ class GracefulKiller:
 #TODO -> read some topic and change pwm limit, spped profile and acc profile
 class set_motor_settings:
     def __init__(self, array_tibia_ids, array_femur_ids, array_coxa_ids):
-        self.BAUDRATE                    = 57600             #default baudrate
+        self.BAUDRATE                    = 3000000             #default baudrate
         self.DEVICENAME                  = '/dev/ttyUSB0'
         self.PROTOCOL_VERSION            = 2.0               
 
@@ -71,12 +71,16 @@ class set_motor_settings:
 
     def reboot_motor_group(self, array_ids):
         for id in range (6):
-            dxl_comm_result, dxl_error = self.packetHandler.reboot(self.portHandler, array_ids[id])
-            if dxl_comm_result != COMM_SUCCESS:
-                print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result))
-            elif dxl_error != 0:
-                print("%s" % self.packetHandler.getRxPacketError(dxl_error))
-            time.sleep(0.05)
+            while True:
+                dxl_comm_result, dxl_error = self.packetHandler.reboot(self.portHandler, array_ids[id])
+                if dxl_comm_result != COMM_SUCCESS:
+                    print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result), " ------------- ")
+                elif dxl_error != 0:
+                    print("%s" % self.packetHandler.getRxPacketError(dxl_error))
+                else:
+                    print("EXITO -- ", array_ids[id])
+                    break
+                time.sleep(0.005)
 
         print("[ID:", array_ids, "] reboot Succeeded")
         print()
@@ -92,7 +96,7 @@ class set_motor_settings:
             elif dxl_error1 != 0 :
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
-            time.sleep(0.05)
+            time.sleep(0.005)
         if state:
             print("Torque enabled - DYNAMIXEL motor group with ids =  ",array_ids)
         else:
@@ -119,7 +123,7 @@ class set_motor_settings:
             elif dxl_error1 != 0 :
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
-            time.sleep(0.05)
+            time.sleep(0.005)
 
         print("OP set to OP", mode, " - DYNAMIXEL motor group with ids =  ",array_ids)
 
@@ -134,9 +138,9 @@ class set_motor_settings:
             elif dxl_error1 != 0 :
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
-            time.sleep(0.05)
+            time.sleep(0.005)
 
-        print( "Velocity changed - DYNAMIXEL motor group with ids =  ",array_ids,)
+        print( "Velocity Profile changed to ", velocity , " - DYNAMIXEL motor group with ids =  ",array_ids,)
 
     def establish_motor_acceleration_profile(self, array_ids, acceleration):
         for id in range (6):
@@ -149,9 +153,9 @@ class set_motor_settings:
             elif dxl_error1 != 0 :
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
-            time.sleep(0.05)
+            time.sleep(0.005)
             
-        print( "Acceleration changed - DYNAMIXEL motor group with ids =  ",array_ids,)
+        print( "Acceleration Profile changed to ", acceleration ," - DYNAMIXEL motor group with ids =  ",array_ids,)
 
     def establish_pwm_limit_value(self, array_ids, pwm_limit):
         for id in range (6):
@@ -166,13 +170,15 @@ class set_motor_settings:
                 print("fail-- ID ", array_ids[id])
                 print("%s" % self.packetHandler.getRxPacketError(dxl_error1))
                 quit()
-            time.sleep(0.05)
+            time.sleep(0.005)
             
         print( "pwm changed - DYNAMIXEL motor group with ids =  ",array_ids,)
 
     def default_configuration(self):
         self.reboot_motor_group(self.array_tibia_ids)
+        time.sleep(0.05)
         self.reboot_motor_group(self.array_femur_ids)
+        time.sleep(0.05)
         self.reboot_motor_group(self.array_coxa_ids)
         print()
 
@@ -181,23 +187,23 @@ class set_motor_settings:
         self.torque_motor_group(self.array_coxa_ids,0)
         print()        
 
-        self.establish_operation_mode(self.array_tibia_ids, "velocity")
-        self.establish_operation_mode(self.array_femur_ids, "velocity")
-        self.establish_operation_mode(self.array_coxa_ids, "velocity")
+        self.establish_operation_mode(self.array_tibia_ids, "position")
+        self.establish_operation_mode(self.array_femur_ids, "position")
+        self.establish_operation_mode(self.array_coxa_ids, "position")
         print()
-        self.establish_motor_speed_profile(self.array_tibia_ids,20)
-        self.establish_motor_speed_profile(self.array_femur_ids,20)
-        self.establish_motor_speed_profile(self.array_coxa_ids,20)
-        print()
-
-        self.establish_motor_acceleration_profile(self.array_tibia_ids,10)
-        self.establish_motor_acceleration_profile(self.array_femur_ids,10)
-        self.establish_motor_acceleration_profile(self.array_coxa_ids,10)
+        self.establish_motor_speed_profile(self.array_tibia_ids,500)
+        self.establish_motor_speed_profile(self.array_femur_ids,500)
+        self.establish_motor_speed_profile(self.array_coxa_ids,500)
         print()
 
-        self.establish_pwm_limit_value(self.array_tibia_ids,375)
-        self.establish_pwm_limit_value(self.array_femur_ids,375)
-        self.establish_pwm_limit_value(self.array_coxa_ids,375)
+        self.establish_motor_acceleration_profile(self.array_tibia_ids,100)
+        self.establish_motor_acceleration_profile(self.array_femur_ids,100)
+        self.establish_motor_acceleration_profile(self.array_coxa_ids,100)
+        print()
+
+        self.establish_pwm_limit_value(self.array_tibia_ids,350)
+        self.establish_pwm_limit_value(self.array_femur_ids,350)
+        self.establish_pwm_limit_value(self.array_coxa_ids,350)
         print()
 
         self.torque_motor_group(self.array_tibia_ids,1)
@@ -205,9 +211,13 @@ class set_motor_settings:
         self.torque_motor_group(self.array_coxa_ids,1)
 
     def disable_motors(self):
-        self.torque_motor_group(self.array_tibia_ids,0)
-        self.torque_motor_group(self.array_femur_ids,0)
-        self.torque_motor_group(self.array_coxa_ids,0)
+
+        self.reboot_motor_group(self.array_tibia_ids)
+        time.sleep(0.05)
+        self.reboot_motor_group(self.array_femur_ids)
+        time.sleep(0.05)
+        self.reboot_motor_group(self.array_coxa_ids)
+        print()
 
 
 def main():

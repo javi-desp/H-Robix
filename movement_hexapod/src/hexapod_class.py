@@ -96,6 +96,21 @@ class hexapod_class:
         #### @use __init__
         ##########################################################################################################################################
 
+        pos1 = [-0.19*0.85, 0.17*0.85, -0.14, 1]
+        pos1 = np.dot(self.T_base2coxa_list["coxa_LB"], pos1)
+        pos2 = [0.0, 0.24*0.85, -0.14, 1]
+        pos2 = np.dot(self.T_base2coxa_list["coxa_LM"], pos2)
+        pos3 = [0.19*0.85, 0.17*0.85, -0.14, 1]
+        pos3 = np.dot(self.T_base2coxa_list["coxa_LF"], pos3)
+        pos4 = [-0.19*0.85, -0.17*0.85, -0.14, 1]
+        pos4 = np.dot(self.T_base2coxa_list["coxa_RB"], pos4)
+        pos5 = [0.0, -0.24*0.85, -0.14, 1]
+        pos5 = np.dot(self.T_base2coxa_list["coxa_RM"], pos5)
+        pos6 = [0.19*0.85, -0.17*0.85, -0.14, 1]
+        pos6 = np.dot(self.T_base2coxa_list["coxa_RF"], pos6)
+
+        self.poses_home2 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
+        """
         pos1 = [-0.19, 0.17, 0, 1]
         pos1 = np.dot(self.T_base2coxa_list["coxa_LB"], pos1)
         pos2 = [0.0, 0.24, 0, 1]
@@ -108,13 +123,15 @@ class hexapod_class:
         pos5 = np.dot(self.T_base2coxa_list["coxa_RM"], pos5)
         pos6 = [0.19, -0.17, 0, 1]
         pos6 = np.dot(self.T_base2coxa_list["coxa_RF"], pos6)
+        """
+        self.poses_home = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
 
-        self.poses_zero = []
         self.poses_home = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
         self.poses_home_movement = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
         self.poses_goal_movement_p1 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
         self.poses_goal_movement_p2 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
-
+        self.poses_goal_movement_p2 = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
+        self.poses_to_motors = {"LB":pos1, "LM": pos2, "LF": pos3, "RB":pos4, "RM": pos5, "RF": pos6}
         self.poses_sleep = {}
 
     def get_current_motor_data(self, data):
@@ -128,37 +145,41 @@ class hexapod_class:
         self.femur_group_current_position = list(data.position[6:12])
         self.tibia_group_current_position = list(data.position[0:6])
 
-    def convert_radians2binary_data(self, coxa_group_position, femur_group_position, tibia_group_position):
+    def convert_radians2binary_data(self, leg_positions, id):
         ##########################################################################################################################################
         #### @brief convert rotation value from radians to binary data 12 bits (0-4095), depending of home offset of each motor
-        #### @param coxa_group_position -> array of pos data of the all coxas 
-        #### @param femur_group_position -> array of pos data of the all femurs 
-        #### @param tibia_group_position -> array of pos data of the all tibias 
+        #### @param leg_positions -> array of all joints of a leg
         #### @use in create_msg_motor_control_real()  
         ##########################################################################################################################################
-
-        tibia_group_position[0] = abs (int((tibia_group_position[0]+math.pi)/(2*math.pi/4095)))
-        tibia_group_position[1] = abs (int((tibia_group_position[1]+math.pi)/(2*math.pi/4095)))
-        tibia_group_position[2] = abs (int((tibia_group_position[2]+math.pi)/(2*math.pi/4095)))
-        tibia_group_position[3] = abs (int((tibia_group_position[3]-math.pi)/(2*math.pi/4095)))
-        tibia_group_position[4] = abs (int((tibia_group_position[4]-math.pi)/(2*math.pi/4095)))
-        tibia_group_position[5] = abs (int((tibia_group_position[5]-math.pi)/(2*math.pi/4095)))
-
-        femur_group_position[0] = abs (int((femur_group_position[0]-math.pi)/(2*math.pi/4095)))
-        femur_group_position[1] = abs (int((femur_group_position[1]-math.pi)/(2*math.pi/4095)))
-        femur_group_position[2] = abs (int((femur_group_position[2]-math.pi)/(2*math.pi/4095)))
-        femur_group_position[3] = abs (int((femur_group_position[3]+math.pi)/(2*math.pi/4095)))
-        femur_group_position[4] = abs (int((femur_group_position[4]+math.pi)/(2*math.pi/4095)))
-        femur_group_position[5] = abs (int((femur_group_position[5]+math.pi)/(2*math.pi/4095)))
         
-        coxa_group_position[0] = abs (int((coxa_group_position[0]+math.pi)/(2*math.pi/4095)))
-        coxa_group_position[1] = abs (int((coxa_group_position[1]+math.pi)/(2*math.pi/4095)))
-        coxa_group_position[2] = abs (int((coxa_group_position[2]+math.pi)/(2*math.pi/4095)))
-        coxa_group_position[3] = abs (int((coxa_group_position[3]+math.pi)/(2*math.pi/4095)))
-        coxa_group_position[4] = abs (int((coxa_group_position[4]+math.pi)/(2*math.pi/4095)))
-        coxa_group_position[5] = abs (int((coxa_group_position[5]+math.pi)/(2*math.pi/4095)))
+        if id == 1:
+            tibia = abs (int((leg_positions[2]+math.pi)/(2*math.pi/4095)))
+            femur = abs (int((leg_positions[1]+math.pi)/(2*math.pi/4095)))
+            coxa =  abs (int((-leg_positions[0] -self.off_coxa[0]+math.pi)/(2*math.pi/4095)))
+        if id == 2:
+            tibia = abs (int((leg_positions[2]+math.pi)/(2*math.pi/4095)))
+            femur = abs (int((leg_positions[1]+math.pi)/(2*math.pi/4095)))
+            coxa = abs (int((-leg_positions[0] -self.off_coxa[1]+math.pi)/(2*math.pi/4095)))
+        if id == 3:
+            tibia = abs (int((leg_positions[2]+math.pi)/(2*math.pi/4095)))
+            femur = abs (int((leg_positions[1]+math.pi)/(2*math.pi/4095)))
+            coxa = abs (int((-leg_positions[0] -self.off_coxa[2]+math.pi)/(2*math.pi/4095)))
+        if id == 4:
+            tibia = abs (int((leg_positions[2]-math.pi)/(2*math.pi/4095)))
+            femur = abs (int((-leg_positions[1] +math.pi)/(2*math.pi/4095)))
+            coxa = abs (int((-leg_positions[0] -self.off_coxa[3]+math.pi)/(2*math.pi/4095)))
 
-        return coxa_group_position, femur_group_position, tibia_group_position
+        if id == 5:
+            tibia = abs (int((leg_positions[2]-math.pi)/(2*math.pi/4095)))
+            femur = abs (int((-leg_positions[1] +math.pi)/(2*math.pi/4095)))
+            coxa = abs (int((-leg_positions[0] -self.off_coxa[4]+math.pi)/(2*math.pi/4095)))
+
+        if id == 6:
+            tibia = abs (int((leg_positions[2]-math.pi)/(2*math.pi/4095)))
+            femur = abs (int((-leg_positions[1] +math.pi)/(2*math.pi/4095)))
+            coxa = abs (int((-leg_positions[0] -self.off_coxa[5]+math.pi)/(2*math.pi/4095)))
+
+        return {"tibia":tibia, "femur":femur, "coxa": coxa, "id": id}
 
     def create_msg_motor_control_debug(self):
         ##########################################################################################################################################
@@ -194,48 +215,50 @@ class hexapod_class:
             set_position_leg_group = SetGroupMotorData()
             set_position_leg_group.data_required = mode
 
-            set_position_leg_group.motor1_id = list_legs[0][0]
-            set_position_leg_group.motor2_id = int ( str(list_legs[0][0]) + "0")
-            set_position_leg_group.motor3_id = int ( str(list_legs[0][0]) + "1")
-            set_position_leg_group.motor4_id = list_legs[0][0]
-            set_position_leg_group.motor5_id = int ( str(list_legs[0][0]) + "0")
-            set_position_leg_group.motor6_id = int ( str(list_legs[0][0]) + "1")
+            set_position_leg_group.motor1_id = list_legs[0]["id"]                      # tibia
+            set_position_leg_group.motor2_id = int ( str(list_legs[0]["id"]) + "0")    # coxa
+            set_position_leg_group.motor3_id = int ( str(list_legs[0]["id"]) + "1")    # femur
 
-            set_position_leg_group.motor1_data = list_legs[0][1][0]
-            set_position_leg_group.motor2_data = list_legs[0][1][1]
-            set_position_leg_group.motor3_data = list_legs[0][1][2]
-            set_position_leg_group.motor4_data = list_legs[0][1][0]
-            set_position_leg_group.motor5_data = list_legs[0][1][1]
-            set_position_leg_group.motor6_data = list_legs[0][1][2]
+            set_position_leg_group.motor4_id = 255
+            set_position_leg_group.motor5_id = 255
+            set_position_leg_group.motor6_id = 255
+
+            set_position_leg_group.motor1_data = list_legs[0]["tibia"]
+            set_position_leg_group.motor2_data = list_legs[0]["coxa"]
+            set_position_leg_group.motor3_data = list_legs[0]["femur"]
+            set_position_leg_group.motor4_data = 0
+            set_position_leg_group.motor5_data = 0
+            set_position_leg_group.motor6_data = 0
         else:
             set_position_leg_group = SetGroupMotorData()
             set_position_leg_group.data_required = mode
 
-            set_position_leg_group.motor1_id = list_legs[0][0]
-            set_position_leg_group.motor2_id = int ( str(list_legs[0][0]) + "0")
-            set_position_leg_group.motor3_id = int ( str(list_legs[0][0]) + "1")
-            set_position_leg_group.motor4_id = list_legs[1][0]
-            set_position_leg_group.motor5_id = int ( str(list_legs[1][0]) + "0")
-            set_position_leg_group.motor6_id = int ( str(list_legs[1][0]) + "1")
+            set_position_leg_group.motor1_id = list_legs[0]["id"]                      # tibia
+            set_position_leg_group.motor2_id = int ( str(list_legs[0]["id"]) + "0")    # coxa
+            set_position_leg_group.motor3_id = int ( str(list_legs[0]["id"]) + "1")    # femur
 
-            set_position_leg_group.motor1_data = list_legs[0][1][0]
-            set_position_leg_group.motor2_data = list_legs[0][1][1]
-            set_position_leg_group.motor3_data = list_legs[0][1][2]
-            set_position_leg_group.motor4_data = list_legs[1][1][0]
-            set_position_leg_group.motor5_data = list_legs[1][1][1]
-            set_position_leg_group.motor6_data = list_legs[1][1][2]
+            set_position_leg_group.motor4_id = list_legs[1]["id"]
+            set_position_leg_group.motor5_id = int ( str(list_legs[1]["id"]) + "0")
+            set_position_leg_group.motor6_id = int ( str(list_legs[1]["id"]) + "1")
+
+            set_position_leg_group.motor1_data = list_legs[0]["tibia"]
+            set_position_leg_group.motor2_data = list_legs[0]["coxa"]
+            set_position_leg_group.motor3_data = list_legs[0]["femur"]
+            set_position_leg_group.motor4_data = list_legs[1]["tibia"]
+            set_position_leg_group.motor5_data = list_legs[1]["coxa"]
+            set_position_leg_group.motor6_data = list_legs[1]["femur"]
 
         return set_position_leg_group
 
     def command_position(self, poses_legs, group_ids, mode="real"):
         ##########################################################################################################################################
-        #### @brief depends on the mode it sends (publish) data to the corresponding topic from the goal position of each leg in xyz plane
+        #### @brief depends on the mode it sends (publish) data to the corresponding topic  the goal position of each leg in xyz plane
         #### @param poses_legs -> array of cartesian poses of each leg
         #### @param group_ids -> id of legs to move
         #### @param mode -> mode of running code (sending data to motors o simulation)
         #### @use in gait modes  
         ##########################################################################################################################################
-        print(mode)
+
         if mode == "debug":
             i = 0
             for key in poses_legs:
@@ -251,16 +274,16 @@ class hexapod_class:
         
         elif mode == "real":
             i = 0
-            ang_legs = {}
+            binary_goal_pos = []
             for key in poses_legs:
                 if i in group_ids: 
-                    ang_legs[i] = self.inverse_kinematics(poses_legs[key][0], poses_legs[key][1], poses_legs[key][2],  key)
+                    ang_pos = self.inverse_kinematics(poses_legs[key][0], poses_legs[key][1], poses_legs[key][2], key)
+                    binary_goal_pos.append( self.convert_radians2binary_data(ang_pos, i+1))
                 i +=1
 
-            for i in range(0, len(ang_legs), 2):
-                set_position_legs_group = self.create_msg_motor_control_real("position", list(ang_legs.items()[i:i+2]))
+            for i in range(0, len(binary_goal_pos), 2):
+                set_position_legs_group = self.create_msg_motor_control_real("position", binary_goal_pos[i:i+2])
                 self.pub_to_motor_group.publish(set_position_legs_group)
-                self.rate.sleep()
         else:
             print("MODE BAD DEFINED")
 
@@ -272,7 +295,7 @@ class hexapod_class:
         #### @param z -> z goal pos
         #### @param key_leg -> key of leg to move
         #### @use in command_position()  
-        #### @return [theta_1 , theta_2, theta_3] -> angle for each joint in radians 
+        #### @return [theta_3 , theta_2, theta_1] -> angle for each joint in radians (thetha N3 -> tibia, 2-> femur, 1-> coxa)
         ##########################################################################################################################################
         try:
             if "L" in key_leg:
@@ -337,7 +360,7 @@ class hexapod_class:
 
         for key in self.poses_home:
             #radius of movement circumference (depends on the speed of movement)
-            radius = 0.05
+            radius = 0.055
             self.poses_home_movement[key][2] = h_leg
             self.poses_goal_movement_p1[key] = [self.poses_home_movement[key][0] + radius*math.cos(ang + math.pi/4)/2,
                                                 self.poses_home_movement[key][1] + radius*math.sin(ang + math.pi/4)/2,
@@ -370,23 +393,27 @@ class hexapod_class:
 
         try:
             for phase in range(2):
+                if phase == 0:
                     print("phase 1")
                     #PHASE 1
                     self.command_position(self.poses_goal_movement_p1, id_group_1, mode)
                     self.command_position(self.poses_home_movement, id_group_2, mode)
-                    time.sleep(0.2)
+                    print("pose1")
+                    time.sleep(0.5)
                     #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
                     self.command_position(self.poses_goal_movement_p2, id_group_1, mode)
-                    time.sleep(1)
-                    
+                    print("pose2")
+                    time.sleep(0.5)
+                if phase == 1:
                     print("phase 2")     
                     #PHASE 2
                     self.command_position(self.poses_goal_movement_p1, id_group_2, mode)
                     self.command_position(self.poses_home_movement, id_group_1, mode)
-                    time.sleep(0.2)
+                    time.sleep(0.5)
                     #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
                     self.command_position(self.poses_goal_movement_p2, id_group_2, mode)
-                    time.sleep(1)
+                    time.sleep(0.5)
+                    
         except:
             exit()
                                   
@@ -408,14 +435,17 @@ class hexapod_class:
 
         self.calculate_goal_points_movement(ang, h_hop, h_legs)
         for leg in range(6):
-            self.command_position(self.poses_goal_movement_p1, [leg], mode)
-            time.sleep(0.2)
-            self.command_position(self.poses_goal_movement_p2, [leg], mode)
-            time.sleep(0.5)
-            self.command_position(self.poses_home_movement, [leg], mode)
-            time.sleep(1)
+                self.command_position(self.poses_goal_movement_p1, [leg], mode)
+                self.command_position(self.poses_goal_movement_p1, [leg], mode)
+                time.sleep(0.5)
+                self.command_position(self.poses_goal_movement_p2, [leg], mode)
+                self.command_position(self.poses_goal_movement_p2, [leg], mode)
+                time.sleep(0.5)
+                self.command_position(self.poses_home_movement, [leg], mode)
+                self.command_position(self.poses_home_movement, [leg], mode)
+                time.sleep(0.5)
                                         
-    def run_ripple_mode(self, dir, h_legs = - 0.1, h_hop = 0.05, mode = "real"):
+    def run_ripple_mode(self, dir, h_legs = -0.1, h_hop = 0.05, mode = "real"):
         ##########################################################################################################################################
         #### @brief perform triple gait 
         #### @param dir -> vector (x,y) of movement circumference direction
@@ -463,8 +493,23 @@ def main():
     ID_coxa = [10,20,30,40,50,60]
 
     hexapod = hexapod_class(ID_tibia, ID_femur, ID_coxa)
+    start = time.time()
+    """
     while True:
-        hexapod.run_wave_mode(dir= [1, 0], mode="debug")
+        if time.time() - start < 4:
+            for leg in range(6):
+                    time.sleep(0.1)
+                    hexapod.command_position(hexapod.poses_home_movement, [leg], "debug")
+        else:
+            for leg in range(6):
+                time.sleep(0.1)
+                hexapod.command_position(hexapod.poses_home2, [leg], "debug")
+            if time.time() - start > 8:
+                start = time.time()
+    """
+
+    while True:
+        hexapod.run_tripod_mode(dir= [1, 0.5], mode="real")
 
     
 if __name__ == '__main__':
