@@ -78,7 +78,6 @@ class set_motor_settings:
                 elif dxl_error != 0:
                     print("%s" % self.packetHandler.getRxPacketError(dxl_error))
                 else:
-                    print("EXITO -- ", array_ids[id])
                     break
                 time.sleep(0.005)
 
@@ -163,7 +162,6 @@ class set_motor_settings:
             dxl_comm_result1, dxl_error1 = self.packetHandler.write2ByteTxRx(self.portHandler, array_ids[id], self.ADDR_PWM_LIMIT, pwm_limit)
 
             if dxl_comm_result1 != self.COMM_SUCCESS :
-                print("exito-- ID ", array_ids[id])
                 print("%s" % self.packetHandler.getTxRxResult(dxl_comm_result1))
                 quit()
             elif dxl_error1 != 0 :

@@ -5,15 +5,15 @@ import rospy
 from urdf_parser_py.urdf import URDF
 from scipy.spatial.transform import Rotation as R
 import rospy, tf2_ros
-import geometry_msgs.msg
+from sensor_msgs.msg import Joy
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 import time
 import numpy as np
 import math
 
-from javi_controllers.srv import *
-from javi_controllers.msg import *
+from h_robix_control.srv import *
+from h_robix_control.msg import *
 
 
 class hexapod_class:
@@ -23,6 +23,7 @@ class hexapod_class:
         self.robot_description = URDF.from_parameter_server()
         
         self.base_height = 0
+        self.dir = [0,0]
         self.T_base2coxa_list = {}
         self.leg_positions = {"coxa":0, "femur": 0, "tibia": 0}
         self.leg_lenghts = {"coxa":0, "femur": 0, "tibia": 0}
@@ -41,6 +42,7 @@ class hexapod_class:
 
         self.pub_to_motor_group = rospy.Publisher('set_dinamixel_motor_group_data', SetGroupMotorData, queue_size=10)
         rospy.Subscriber("joint_states", JointState, self.get_current_motor_data)
+        rospy.Subscriber("hexapod_remote_control", Joy, self.update_goal_direction)
 
     def get_params(self):
         ##########################################################################################################################################
@@ -371,10 +373,13 @@ class hexapod_class:
                                                 self.poses_home_movement[key][1] + radius*math.sin(ang + math.pi/4),
                                                 h_leg]
 
-    def run_tripod_mode(self, dir, h_legs = - 0.1, h_hop = 0.05, mode = "real"):
+    def update_goal_direction(self, data):
+        self.dir[0] = data.axes[0]
+        self.dir[1] = data.axes[1]
+
+    def run_tripod_mode(self, h_legs = - 0.1, h_hop = 0.05, mode = "real"):
         ##########################################################################################################################################
         #### @brief perform triple gait 
-        #### @param dir -> vector (x,y) of movement circumference direction
         #### @param h_legs -> heigh of the final point of the legs (foot)
         #### @param h_hop -> heigh of the hop of the trayectory (needed in order to do a gait in a rough terrain )
         #### @param mode -> mode of running code (sending data to motors o simulation)
@@ -383,9 +388,9 @@ class hexapod_class:
 
         #TODO self.base_height
 
-        if type(dir) == list:
-            ang = math.atan2(dir[1], dir[0])
-            speed = math.sqrt(math.pow(dir[0],2) + math.pow(dir[1],2))
+        if type(self.dir) == list:
+            ang = math.atan2(self.dir[1], self.dir[0])
+            speed = math.sqrt(math.pow(self.dir[0],2) + math.pow(self.dir[1],2))
         else:
             return 
         
@@ -396,18 +401,14 @@ class hexapod_class:
         try:
             for phase in range(2):
                 if phase == 0:
-                    print("phase 1")
                     #PHASE 1
                     self.command_position(self.poses_goal_movement_p1, id_group_1, mode)
                     self.command_position(self.poses_home_movement, id_group_2, mode)
-                    print("pose1")
                     time.sleep(0.5)
                     #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
                     self.command_position(self.poses_goal_movement_p2, id_group_1, mode)
-                    print("pose2")
                     time.sleep(0.5)
-                if phase == 1:
-                    print("phase 2")     
+                if phase == 1:   
                     #PHASE 2
                     self.command_position(self.poses_goal_movement_p1, id_group_2, mode)
                     self.command_position(self.poses_home_movement, id_group_1, mode)
@@ -419,11 +420,9 @@ class hexapod_class:
         except:
             exit()
                                   
-
-    def run_wave_mode(self, dir, h_legs = - 0.1, h_hop = 0.05, mode = "real"):
+    def run_wave_mode(self, h_legs = - 0.1, h_hop = 0.05, mode = "real"):
         ##########################################################################################################################################
         #### @brief perform wave gait 
-        #### @param dir -> vector (x,y) of movement circumference direction
         #### @param h_legs -> heigh of the final point of the legs (foot)
         #### @param h_hop -> heigh of the hop of the trayectory (needed in order to do a gait in a rough terrain )
         #### @param mode -> mode of running code (sending data to motors o simulation)
@@ -433,7 +432,7 @@ class hexapod_class:
         #TODO self.base_height
 
         if type(dir) == list:
-            ang = math.atan2(dir[1], dir[0])
+            ang = math.atan2(self.dir[1], self.dir[0])
 
         self.calculate_goal_points_movement(ang, h_hop, h_legs)
         for leg in range(6):
@@ -447,44 +446,17 @@ class hexapod_class:
                 self.command_position(self.poses_home_movement, [leg], mode)
                 time.sleep(0.5)
                                         
-    def run_ripple_mode(self, dir, h_legs = -0.1, h_hop = 0.05, mode = "real"):
+    def run_ripple_mode(self, h_legs = -0.1, h_hop = 0.05, mode = "real"):
         ##########################################################################################################################################
         #### @brief perform triple gait 
-        #### @param dir -> vector (x,y) of movement circumference direction
         #### @param h_legs -> heigh of the final point of the legs (foot)
         #### @param h_hop -> heigh of the hop of the trayectory (needed in order to do a gait in a rough terrain )
         #### @param mode -> mode of running code (sending data to motors o simulation)
         #### @use in main()
         ##########################################################################################################################################
 
-        #TODO self.base_height
-
-        if type(dir) == list:
-            ang = math.atan2(dir[1], dir[0])
-        
-        id_group_1 = [0, 2, 4]
-        id_group_2 = [1, 3, 5 ]
-        self.calculate_goal_points_movement(ang, h_hop, h_legs)
-
-        for i in range(2):
-            if i == 0:
-                #PHASE 1
-                self.command_position(self.poses_goal_movement_p1, id_group_1, mode)
-                self.command_position(self.poses_home_movement, id_group_2, mode)
-                time.sleep(0.2)
-                #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
-                self.command_position(self.poses_goal_movement_p2, id_group_1, mode)
-                time.sleep(0.5)
-                print("phase 1")
-            else:
-                #PHASE 2
-                self.command_position(self.poses_goal_movement_p1, id_group_2, mode)
-                self.command_position(self.poses_home_movement, id_group_1, mode)
-                time.sleep(0.2)
-                #DECREASE VELOCITY IN THIS CASE TO DO 2 MOVEMENTS IN THE SAME TIME
-                self.command_position(self.poses_goal_movement_p2, id_group_2, mode)
-                time.sleep(0.5)
-                print("phase 2")                       
+        #TODO 
+        pass                  
 
 
 def main():
@@ -496,22 +468,17 @@ def main():
 
     hexapod = hexapod_class(ID_tibia, ID_femur, ID_coxa)
     start = time.time()
-    """
-    while True:
-        if time.time() - start < 4:
-            for leg in range(6):
-                    time.sleep(0.1)
-                    hexapod.command_position(hexapod.poses_home_movement, [leg], "debug")
-        else:
-            for leg in range(6):
-                time.sleep(0.1)
-                hexapod.command_position(hexapod.poses_home2, [leg], "debug")
-            if time.time() - start > 8:
-                start = time.time()
-    """
+    try:
+        while True:
+            if hexapod.dir[0]== 0 and hexapod.dir[1]== 0:
+                for leg in range(6):
+                        time.sleep(0.1)
+                        hexapod.command_position(hexapod.poses_home_movement, [leg], "debug")
+            else:
+                hexapod.run_tripod_mode(mode="debug")
 
-    while True:
-        hexapod.run_tripod_mode(dir= [1, 0.5], mode="real")
+    except rospy.ROSInterruptException:
+            print("FIN")
 
     
 if __name__ == '__main__':

@@ -159,7 +159,7 @@ class service_to_joint_state:
 #TODO it can be done in server side
 #TODO run after conf_motors in a proper way... 
 def main():
-    time.sleep(10)
+    time.sleep(3)
     
     #TODO read ID motors from json conf file 
     ID_tibia = [1,2,3,4,5,6]

@@ -1,0 +1,6 @@
+<launch>
+  <include file="$(find h_robix_description)/launch/rviz_visualizer.launch">
+      </include>
+  <node pkg="rqt_virtual_joy" type="rqt_virtual_joy" name="rqt_virtual_joy_launch_node" output="screen"/>
+  <node pkg="h_robix_movement" name="hexapod_class" type="hexapod_class.py" output="screen"/>
+</launch>

@@ -174,7 +174,6 @@ void set_data_callback(const h_robix_control::SetGroupMotorData::ConstPtr & msg)
     dxl_addparam_result += 1;
   else
     dxl_addparam_result += groupBulkWrite.addParam((uint8_t)msg->motor6_id, addr_goal_item[5], len_goal_item[5], param_goal_position[5]);
-
   }
   else if (msg->data_required == "PWM") {
     pwm_goal = (unsigned int)msg->motor1_data; // Convert int32 -> uint32
