@@ -3,10 +3,9 @@
 H-Robix is a project, consisted in designing, creating and programming an hexapod in ROS, with dinamixel servomotors
 
 
-![IMG_20220707_195836](https://user-images.githubusercontent.com/65245295/191586074-56411f37-243b-4a04-94eb-dfbff38988bf.jpg)
+![IMG_20220707_195836](https://user-images.githubusercontent.com/65245295/191586074-56411f37-243b-4a04-94eb-dfbff38988bf.jpg) ![little_hex](https://user-images.githubusercontent.com/65245295/195046659-469f7064-f8f8-4db6-8405-8ca6151f826d.jpg)
 
 ![little_hex](https://user-images.githubusercontent.com/65245295/195046659-469f7064-f8f8-4db6-8405-8ca6151f826d.jpg)
-
 
 ##Electronics..??? 
 
