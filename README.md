@@ -12,21 +12,28 @@ H-Robix is a project, consisted in designing, building and programming an hexapo
 ```
 Catkin_ws
 ├── src
-│   ├── Hexapod (all launch files needed to run the hexapod control locally)
-│       ├── launch 
+│   ├── h_robix_control
+│       ├── launch
+│           ├── hexapod_motor_driver.launch
+│           ├── hexapod_teleoperation.launch
+│       ├── msg and srv files 
 │           ├── hexapod.launch
-│           ├── hexapod_sim.launch
-│           ├── rviz_hexapod.launch
-│   ├── Hexapod_description (urdf, params and meshes to run Rviz, Gzebo and get joint info to perform kinematics)
+│       ├── msrc
+│           ├── buttons_handler.py
+│           ├── conf_motors.py
+│           ├── dinamixel_motor_controllers.cpp
+│           ├── pub_crr_motors_data.py
+│   ├── h_robix_description (urdf, params and meshes to run Rviz, Gzebo and get joint info to perform kinematics)
+│       ├── launch 
+│           ├── rviz_visualizer.launch
 │       ├── meshes 
 │           ├── body.stl, coxa.stl, femur.stl, tibia.stl
-│       ├── params 
-│           ├── config.params
 │       ├── urdf 
-│           ├── hexapod.xacro
-│   ├── Hexapod_control 
-│   └── Examples: contains 'demo' crawler ROS packages that build upon some of the 'core' crawler ROS packages
-│       ├── Demo Crawler ROS Package 1
+│           ├── h_robix.urdf.xacro
+│   ├── h_robix_gazebo -> crr not available, joint controllers not well defined
+│   └── h_robix_sh_codes
+│       ├── hexapod_network.sh
+│   └── rqt_virtual_joystick
 ├── devel
 ├── logs
 └── build
