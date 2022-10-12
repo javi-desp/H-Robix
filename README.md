@@ -7,9 +7,30 @@ H-Robix is a project, consisted in designing, building and programming an hexapo
 ![photo_2022-06-16_17-32-17](https://user-images.githubusercontent.com/65245295/195049259-039b3ba3-06bd-4a9c-95d8-c9cb65a84974.png)
 
 
-## Repository Structure
+## ROS Repository Structure
 
-![unnamed](https://user-images.githubusercontent.com/65245295/195334585-585f9b8c-c6b1-4c32-bbeb-32d4209fe6b2.png)
+```
+Catkin_ws
+├── src
+│   ├── Hexapod (all launch files needed to run the hexapod control locally)
+│       ├── launch 
+│           ├── hexapod.launch
+│           ├── hexapod_sim.launch
+│           ├── rviz_hexapod.launch
+│   ├── Hexapod_description (urdf, params and meshes to run Rviz, Gzebo and get joint info to perform kinematics)
+│       ├── meshes 
+│           ├── body.stl, coxa.stl, femur.stl, tibia.stl
+│       ├── params 
+│           ├── config.params
+│       ├── urdf 
+│           ├── hexapod.xacro
+│   ├── Hexapod_control 
+│   └── Examples: contains 'demo' crawler ROS packages that build upon some of the 'core' crawler ROS packages
+│       ├── Demo Crawler ROS Package 1
+├── devel
+├── logs
+└── build
+```
 
 
 
