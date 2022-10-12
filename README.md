@@ -91,7 +91,7 @@ h_robix_sh_codes
 
 
 
-## Video
+## Video demonstration tripod gait  
 https://user-images.githubusercontent.com/65245295/195037681-7bfc925a-f934-4565-9218-098b3da9bce3.mp4
 
 
