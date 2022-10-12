@@ -20,11 +20,6 @@ Catkin_ws
 └── build
 ```
 
-###### **The smallest heading**
-
-
-saassasas
-
 ###### **h_robix_control**
 
 
@@ -62,6 +57,8 @@ h_robix_control
 
 crr not available, joint controllers not well defined
 
+
+###### h_robix_sh_codes
 
 ```
 h_robix_sh_codes
