@@ -12,33 +12,53 @@ H-Robix is a project, consisted in designing, building and programming an hexapo
 ```
 Catkin_ws
 ├── src
-│   ├── h_robix_control
-│       ├── launch
-│           ├── hexapod_motor_driver.launch
-│           ├── hexapod_teleoperation.launch
-│       ├── msg and srv files 
-│           ├── hexapod.launch
-│       ├── msrc
-│           ├── buttons_handler.py
-│           ├── conf_motors.py
-│           ├── dinamixel_motor_controllers.cpp
-│           ├── pub_crr_motors_data.py
-│   ├── h_robix_description (urdf, params and meshes to run Rviz, Gzebo and get joint info to perform kinematics)
-│       ├── launch 
-│           ├── rviz_visualizer.launch
-│       ├── meshes 
-│           ├── body.stl, coxa.stl, femur.stl, tibia.stl
-│       ├── urdf 
-│           ├── h_robix.urdf.xacro
-│   ├── h_robix_gazebo -> crr not available, joint controllers not well defined
-│   └── h_robix_sh_codes
-│       ├── hexapod_network.sh
-│   └── rqt_virtual_joystick
+│   ├── list of needed packages
 ├── devel
 ├── logs
 └── build
 ```
 
+###### h_robix_control
+
+```
+h_robix_control
+    ├── launch
+        ├── hexapod_motor_driver.launch
+        ├── hexapod_teleoperation.launch
+    ├── msg and srv files 
+        ├── hexapod.launch
+    ├── src
+        ├── buttons_handler.py
+        ├── conf_motors.py
+        ├── dinamixel_motor_controllers.cpp
+        ├── pub_crr_motors_data.py
+```
+
+###### h_robix_description
+
+```
+
+ h_robix_description (urdf, params and meshes to run Rviz, Gzebo and get joint info to perform kinematics)
+    ├── launch 
+        ├── rviz_visualizer.launch
+    ├── meshes 
+        ├── body.stl, coxa.stl, femur.stl, tibia.stl
+    ├── urdf 
+        ├── h_robix.urdf.xacro
+
+```
+
+###### h_robix_gazebo
+
+crr not available, joint controllers not well defined
+
+
+```
+h_robix_sh_codes
+    ├── hexapod_network.sh
+```
+
+###### rqt_virtual_joystick
 
 
 
