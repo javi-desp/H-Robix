@@ -7,12 +7,16 @@ H-Robix is a project, consisted in designing, building and programming an hexapo
 ![photo_2022-06-16_17-32-17](https://user-images.githubusercontent.com/65245295/195049259-039b3ba3-06bd-4a9c-95d8-c9cb65a84974.png)
 
 
-## Software & Hardware scheme
+## Software scheme
 
+local control -- driver y publish and receive data of crr pos of each leg and command position 
+
+remote control -- get info of crr pos and do kinematics and gait code in order to calcule the trajectory, besides this in this layer is displayed a 
+RViz window where the robot poses in urdf is shown 
 
 ## ROS Repository Structure
 
-asasasasasasasa
+the packet ROS organization is the next one, where all the needed packages are contained
 
 ```
 Catkin_ws
